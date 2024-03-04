@@ -24,11 +24,11 @@ func TestWorkaroundIssue57490(t *testing.T) {
 	// syntax nodes, computed as Rbrace+len("}"), to be beyond EOF.
 	src := `package p; func f() { var x struct`
 	fset := token.NewFileSet()
-	file, _ := parser.ParseFile(fset, "a.go", src, 0)
+	_, file, _ := parser.ParseFile(fset, "a.go", src, 0)
 	tf := fset.File(file.Pos())
 
 	// Add another file to the FileSet.
-	file2, _ := parser.ParseFile(fset, "b.go", "package q", 0)
+	_, file2, _ := parser.ParseFile(fset, "b.go", "package q", 0)
 
 	// This is the ambiguity of #57490...
 	if file.End() != file2.Pos() {

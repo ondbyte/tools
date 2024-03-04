@@ -192,7 +192,7 @@ func RemoveUnusedParameter(ctx context.Context, fh file.Handle, rng protocol.Ran
 // the callsite) in order to have greater precision.
 func rewriteSignature(fset *token.FileSet, declIdx int, src0 []byte, newDecl *ast.FuncDecl) ([]byte, error) {
 	// Parse the new file0 content, to locate the original params.
-	file0, err := parser.ParseFile(fset, "", src0, parser.ParseComments|parser.SkipObjectResolution)
+	_, file0, err := parser.ParseFile(fset, "", src0, parser.ParseComments|parser.SkipObjectResolution)
 	if err != nil {
 		return nil, bug.Errorf("re-parsing declaring file failed: %v", err)
 	}
@@ -406,7 +406,7 @@ func rewriteCalls(ctx context.Context, rw signatureRewrite) (map[protocol.Docume
 		// by returning the modified AST from replaceDecl. Investigate if that is
 		// accurate.
 		modifiedSrc = append(modifiedSrc, []byte("\n\n"+FormatNode(fset, wrapper))...)
-		modifiedFile, err = parser.ParseFile(rw.pkg.FileSet(), rw.pgf.URI.Path(), modifiedSrc, parser.ParseComments|parser.SkipObjectResolution)
+		_, modifiedFile, err = parser.ParseFile(rw.pkg.FileSet(), rw.pgf.URI.Path(), modifiedSrc, parser.ParseComments|parser.SkipObjectResolution)
 		if err != nil {
 			return nil, err
 		}

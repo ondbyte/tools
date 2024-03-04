@@ -217,7 +217,7 @@ func inlineAllCalls(ctx context.Context, logf func(string, ...any), snapshot *ca
 			// feels sufficiently complicated that, to be safe, this optimization is
 			// deferred until later.
 
-			file, err = parser.ParseFile(fset, uri.Path(), content, parser.ParseComments|parser.SkipObjectResolution)
+			_, file, err = parser.ParseFile(fset, uri.Path(), content, parser.ParseComments|parser.SkipObjectResolution)
 			if err != nil {
 				return nil, bug.Errorf("inlined file failed to parse: %v", err)
 			}

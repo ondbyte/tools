@@ -88,7 +88,7 @@ func Parse(ctx context.Context, fset *token.FileSet, uri protocol.DocumentURI, s
 				event.Log(ctx, fmt.Sprintf("fixSrc loop - last diff:\n%v", unified), tag.File.Of(tok.Name()))
 			}
 
-			newFile, newErr := parser.ParseFile(fset, uri.Path(), newSrc, mode)
+			_, newFile, newErr := parser.ParseFile(fset, uri.Path(), newSrc, mode)
 			if newFile == nil {
 				break // no progress
 			}
@@ -825,7 +825,7 @@ func parseStmt(tok *token.File, pos token.Pos, src []byte) (ast.Stmt, error) {
 
 	// Use ParseFile instead of ParseExpr because ParseFile has
 	// best-effort behavior, whereas ParseExpr fails hard on any error.
-	fake_, file, err := parser.ParseFile(token.NewFileSet(), "", fileSrc, 0)
+	_, fakeFile, err := parser.ParseFile(token.NewFileSet(), "", fileSrc, 0)
 	if fakeFile == nil {
 		return nil, fmt.Errorf("error reading fake file source: %v", err)
 	}

@@ -3265,7 +3265,7 @@ func isSlice(obj types.Object) bool {
 // The AST position information is garbage.
 func forEachPackageMember(content []byte, f func(tok token.Token, id *ast.Ident, fn *ast.FuncDecl)) {
 	purged := goplsastutil.PurgeFuncBodies(content)
-	file, _ := parser.ParseFile(token.NewFileSet(), "", purged, 0)
+	_, file, _ := parser.ParseFile(token.NewFileSet(), "", purged, 0)
 	for _, decl := range file.Decls {
 		switch decl := decl.(type) {
 		case *ast.GenDecl:

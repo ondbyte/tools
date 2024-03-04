@@ -283,7 +283,7 @@ func stubMethodsFixer(ctx context.Context, snapshot *cache.Snapshot, pkg *cache.
 
 	// Re-parse the file.
 	fset := token.NewFileSet()
-	new_, f, err := parser.ParseFile(fset, declPGF.URI.Path(), buf.Bytes(), parser.ParseComments)
+	_, newF, err := parser.ParseFile(fset, declPGF.URI.Path(), buf.Bytes(), parser.ParseComments)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not reparse file: %w", err)
 	}

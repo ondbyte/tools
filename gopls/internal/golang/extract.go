@@ -1143,7 +1143,7 @@ func varOverridden(info *types.Info, firstUse *ast.Ident, obj types.Object, isFr
 // file that represents the text.
 func parseBlockStmt(fset *token.FileSet, src []byte) (*ast.BlockStmt, error) {
 	text := "package main\nfunc _() { " + string(src) + " }"
-	extract, err := parser.ParseFile(fset, "", text, 0)
+	_, extract, err := parser.ParseFile(fset, "", text, 0)
 	if err != nil {
 		return nil, err
 	}

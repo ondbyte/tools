@@ -51,7 +51,7 @@ func TestPurgeFuncBodies(t *testing.T) {
 			fset := token.NewFileSet()
 
 			// Parse then purge (reference implementation).
-			f1, _ := parser.ParseFile(fset, filename, content, 0)
+			_, f1, _ := parser.ParseFile(fset, filename, content, 0)
 			ast.Inspect(f1, func(n ast.Node) bool {
 				switch n := n.(type) {
 				case *ast.FuncDecl:
@@ -67,7 +67,7 @@ func TestPurgeFuncBodies(t *testing.T) {
 			})
 
 			// Purge before parse (logic under test).
-			f2, _ := parser.ParseFile(fset, filename, astutil.PurgeFuncBodies(content), 0)
+			_, f2, _ := parser.ParseFile(fset, filename, astutil.PurgeFuncBodies(content), 0)
 
 			// Compare sequence of node types.
 			nodes1 := preorder(f1)
