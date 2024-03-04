@@ -7,11 +7,12 @@ package typeutil_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/types/typeutil"
 )
@@ -25,7 +26,7 @@ func (*A) g()
 `
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "hello.go", source, 0)
+	_, f, err := parser.ParseFile(fset, "hello.go", source, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

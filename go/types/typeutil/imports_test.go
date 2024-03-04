@@ -7,10 +7,11 @@ package typeutil_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/types/typeutil"
 )
@@ -38,7 +39,7 @@ func TestDependencies(t *testing.T) {
 		`package d; import (_ "b"; _ "c")`,
 		`package f; import (_ "d"; _ "e")`,
 	} {
-		f, err := parser.ParseFile(fset, fmt.Sprintf("%d.go", i), content, 0)
+		_, f, err := parser.ParseFile(fset, fmt.Sprintf("%d.go", i), content, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

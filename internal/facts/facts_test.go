@@ -8,13 +8,14 @@ import (
 	"encoding/gob"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/analysis/analysistest"
 	"golang.org/x/tools/go/packages"
@@ -505,7 +506,7 @@ func TestMalformed(t *testing.T) {
 			// We allow for packages to have type checking errors.
 			for i, pkgTest := range test.pkgs {
 				// parse
-				f, err := parser.ParseFile(fset, fmt.Sprintf("%d.go", i), pkgTest.content, 0)
+				_, f, err := parser.ParseFile(fset, fmt.Sprintf("%d.go", i), pkgTest.content, 0)
 				if err != nil {
 					t.Fatal(err)
 				}

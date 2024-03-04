@@ -9,12 +9,13 @@ package aliases
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
 	"strings"
 	"sync"
+
+	"golang.org/x/tools/parser"
 )
 
 // Alias is an alias of types.Alias.
@@ -61,7 +62,7 @@ func aliasesDefault() bool {
 	// Dynamically check if Aliases will be produced from go/types.
 	aliasesDefaultOnce.Do(func() {
 		fset := token.NewFileSet()
-		f, _ := parser.ParseFile(fset, "a.go", "package p; type A = int", 0)
+		_, f, _ := parser.ParseFile(fset, "a.go", "package p; type A = int", 0)
 		pkg, _ := new(types.Config).Check("p", fset, []*ast.File{f}, nil)
 		_, gotypesaliasDefault = pkg.Scope().Lookup("A").Type().(*types.Alias)
 	})

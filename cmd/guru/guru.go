@@ -15,13 +15,14 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
 	"log"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/loader"

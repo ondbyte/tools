@@ -12,13 +12,14 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/refactor/eg"
@@ -92,7 +93,7 @@ func doMain() error {
 		return err
 	}
 
-	tFile, err := parser.ParseFile(cfg.Fset, tAbs, template, parser.ParseComments)
+	_, tFile, err := parser.ParseFile(cfg.Fset, tAbs, template, parser.ParseComments)
 	if err != nil {
 		return err
 	}

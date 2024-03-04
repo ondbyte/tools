@@ -8,13 +8,14 @@ import (
 	"flag"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/types"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/go/types/typeutil"
@@ -185,7 +186,7 @@ func TestEverything(t *testing.T) {
 						diff.Unified("old", "new", string(callerContent), string(got)))
 
 					// Parse and type-check the transformed source.
-					f, err := parser.ParseFile(caller.Fset, callPosn.Filename, got, parser.SkipObjectResolution)
+					_, f, err := parser.ParseFile(caller.Fset, callPosn.Filename, got, parser.SkipObjectResolution)
 					if err != nil {
 						t.Fatalf("transformed source does not parse: %v", err)
 					}

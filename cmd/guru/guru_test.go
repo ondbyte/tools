@@ -31,7 +31,6 @@ import (
 	"flag"
 	"fmt"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"io"
 	"log"
@@ -45,6 +44,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	guru "golang.org/x/tools/cmd/guru"
 	"golang.org/x/tools/internal/testenv"
@@ -89,7 +90,7 @@ func parseQueries(t *testing.T, filename string) []*query {
 
 	// Parse the file once to discover the test queries.
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, filename, filedata, parser.ParseComments)
+	_, f, err := parser.ParseFile(fset, filename, filedata, parser.ParseComments)
 	if err != nil {
 		t.Fatal(err)
 	}

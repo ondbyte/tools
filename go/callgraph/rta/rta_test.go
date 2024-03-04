@@ -12,11 +12,12 @@ package rta_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/types"
 	"sort"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/callgraph"
 	"golang.org/x/tools/go/callgraph/rta"

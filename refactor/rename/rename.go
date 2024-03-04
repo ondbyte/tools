@@ -14,7 +14,6 @@ import (
 	"go/ast"
 	"go/build"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
@@ -26,6 +25,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/loader"
 	"golang.org/x/tools/go/types/typeutil"

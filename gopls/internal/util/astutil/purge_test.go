@@ -6,11 +6,12 @@ package astutil_test
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"os"
 	"reflect"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/gopls/internal/util/astutil"

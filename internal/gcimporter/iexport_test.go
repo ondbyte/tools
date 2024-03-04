@@ -16,7 +16,6 @@ import (
 	"go/ast"
 	"go/build"
 	"go/constant"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
@@ -27,6 +26,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/inspector"
 	"golang.org/x/tools/go/buildutil"
@@ -228,7 +229,7 @@ func TestIExportData_long(t *testing.T) {
 	// parse and typecheck
 	longFile := "package foo" + strings.Repeat("\n", 123456) + "var X int"
 	fset1 := token.NewFileSet()
-	f, err := parser.ParseFile(fset1, "foo.go", longFile, 0)
+	_, f, err := parser.ParseFile(fset1, "foo.go", longFile, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -264,7 +265,7 @@ func TestIExportData_long(t *testing.T) {
 func TestIExportData_typealiases(t *testing.T) {
 	// parse and typecheck
 	fset1 := token.NewFileSet()
-	f, err := parser.ParseFile(fset1, "p.go", src, 0)
+	_, f, err := parser.ParseFile(fset1, "p.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -414,7 +415,7 @@ func TestUnexportedStructFields(t *testing.T) {
 	// process parses and type-checks a single-file
 	// package and saves its export data.
 	process := func(path, content string) {
-		syntax, err := parser.ParseFile(fset, path+"/x.go", content, 0)
+		_, syntax, err := parser.ParseFile(fset, path+"/x.go", content, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

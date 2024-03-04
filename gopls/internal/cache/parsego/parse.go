@@ -9,10 +9,11 @@ import (
 	"context"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/scanner"
 	"go/token"
 	"reflect"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/gopls/internal/protocol"
 	"golang.org/x/tools/gopls/internal/util/astutil"
@@ -45,7 +46,7 @@ func Parse(ctx context.Context, fset *token.FileSet, uri protocol.DocumentURI, s
 	ctx, done := event.Start(ctx, "cache.ParseGoSrc", tag.File.Of(uri.Path()))
 	defer done()
 
-	file, err := parser.ParseFile(fset, uri.Path(), src, mode)
+	_, file, err := parser.ParseFile(fset, uri.Path(), src, mode)
 	var parseErr scanner.ErrorList
 	if err != nil {
 		// We passed a byte slice, so the only possible error is a parse error.
@@ -824,7 +825,7 @@ func parseStmt(tok *token.File, pos token.Pos, src []byte) (ast.Stmt, error) {
 
 	// Use ParseFile instead of ParseExpr because ParseFile has
 	// best-effort behavior, whereas ParseExpr fails hard on any error.
-	fakeFile, err := parser.ParseFile(token.NewFileSet(), "", fileSrc, 0)
+	fake_, file, err := parser.ParseFile(token.NewFileSet(), "", fileSrc, 0)
 	if fakeFile == nil {
 		return nil, fmt.Errorf("error reading fake file source: %v", err)
 	}

@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/scanner"
 	"go/token"
 	"go/types"
@@ -23,6 +22,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/gcexportdata"
 	"golang.org/x/tools/internal/gocommand"
@@ -604,7 +605,8 @@ func newLoader(cfg *Config) *loader {
 		if ld.ParseFile == nil {
 			ld.ParseFile = func(fset *token.FileSet, filename string, src []byte) (*ast.File, error) {
 				const mode = parser.AllErrors | parser.ParseComments
-				return parser.ParseFile(fset, filename, src, mode)
+				_, f, err := parser.ParseFile(fset, filename, src, mode)
+				return f, err
 			}
 		}
 	}

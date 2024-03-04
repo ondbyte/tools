@@ -7,12 +7,13 @@ package ssa_test
 import (
 	"go/ast"
 	"go/constant"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"math/big"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ssa"
 )
@@ -27,7 +28,7 @@ func TestConstString(t *testing.T) {
 	func gen[T int]() {}
 	`
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "p.go", source, 0)
+	_, f, err := parser.ParseFile(fset, "p.go", source, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

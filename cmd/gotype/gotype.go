@@ -93,7 +93,6 @@ import (
 	"go/ast"
 	"go/build"
 	"go/importer"
-	"go/parser"
 	"go/scanner"
 	"go/token"
 	"go/types"
@@ -102,6 +101,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"golang.org/x/tools/parser"
 )
 
 var (
@@ -189,7 +190,7 @@ func parse(filename string, src interface{}) (*ast.File, error) {
 	if *verbose {
 		fmt.Println(filename)
 	}
-	file, err := parser.ParseFile(fset, filename, src, parserMode) // ok to access fset concurrently
+	_, file, err := parser.ParseFile(fset, filename, src, parserMode) // ok to access fset concurrently
 	if *printAST {
 		ast.Print(fset, file)
 	}

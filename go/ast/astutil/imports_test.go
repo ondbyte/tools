@@ -8,17 +8,18 @@ import (
 	"bytes"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"reflect"
 	"strconv"
 	"testing"
+
+	"golang.org/x/tools/parser"
 )
 
 var fset = token.NewFileSet()
 
 func parse(t *testing.T, name, in string) *ast.File {
-	file, err := parser.ParseFile(fset, name, in, parser.ParseComments)
+	_, file, err := parser.ParseFile(fset, name, in, parser.ParseComments)
 	if err != nil {
 		t.Fatalf("%s parse: %v", name, err)
 	}
@@ -1934,7 +1935,7 @@ func unquote(s string) string {
 func TestImports(t *testing.T) {
 	fset := token.NewFileSet()
 	for _, test := range importsTests {
-		f, err := parser.ParseFile(fset, "test.go", test.in, 0)
+		_, f, err := parser.ParseFile(fset, "test.go", test.in, 0)
 		if err != nil {
 			t.Errorf("%s: %v", test.name, err)
 			continue
@@ -2115,7 +2116,7 @@ import . "io"
 func TestUsesImport(t *testing.T) {
 	fset := token.NewFileSet()
 	for _, test := range usesImportTests {
-		f, err := parser.ParseFile(fset, "test.go", test.in, 0)
+		_, f, err := parser.ParseFile(fset, "test.go", test.in, 0)
 		if err != nil {
 			t.Errorf("%s: %v", test.name, err)
 			continue

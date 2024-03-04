@@ -649,7 +649,7 @@ import (
 	. "net/http"
 	. "runtime"
 	. "go/types"
-	. "go/parser"
+	. "golang.org/x/tools/parser"
 	. "go/ast"
 )
 

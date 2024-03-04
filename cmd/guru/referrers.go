@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
@@ -19,6 +18,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/cmd/guru/serial"
 	"golang.org/x/tools/go/buildutil"
@@ -455,7 +456,7 @@ func globalReferrersPkgLevel(q *Query, obj types.Object, fset *token.FileSet) er
 					// If we're in the query package, we defer final processing until we have
 					// parsed all of the candidate files in the package.
 					// Best effort; allow errors and use what we can from what remains.
-					f, _ := parser.ParseFile(fset, file, src, parser.AllErrors)
+					_, f, _ := parser.ParseFile(fset, file, src, parser.AllErrors)
 					if f != nil {
 						deffiles[file] = f
 					}
@@ -467,7 +468,7 @@ func globalReferrersPkgLevel(q *Query, obj types.Object, fset *token.FileSet) er
 				// Parse out only the imports, to check whether the defining package
 				// was imported, and if so, under what names.
 				// Best effort; allow errors and use what we can from what remains.
-				f, _ := parser.ParseFile(fset, file, src, parser.ImportsOnly|parser.AllErrors)
+				_, f, _ := parser.ParseFile(fset, file, src, parser.ImportsOnly|parser.AllErrors)
 				if f == nil {
 					continue
 				}
@@ -497,7 +498,7 @@ func globalReferrersPkgLevel(q *Query, obj types.Object, fset *token.FileSet) er
 
 				// Re-parse the entire file.
 				// Parse errors are ok; we'll do the best we can with a partial AST, if we have one.
-				f, _ = parser.ParseFile(fset, file, src, parser.AllErrors)
+				_, f, _ = parser.ParseFile(fset, file, src, parser.AllErrors)
 				if f == nil {
 					continue
 				}

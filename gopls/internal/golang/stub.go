@@ -9,12 +9,13 @@ import (
 	"context"
 	"fmt"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
 	pathpkg "path"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/ast/astutil"
@@ -282,7 +283,7 @@ func stubMethodsFixer(ctx context.Context, snapshot *cache.Snapshot, pkg *cache.
 
 	// Re-parse the file.
 	fset := token.NewFileSet()
-	newF, err := parser.ParseFile(fset, declPGF.URI.Path(), buf.Bytes(), parser.ParseComments)
+	new_, f, err := parser.ParseFile(fset, declPGF.URI.Path(), buf.Bytes(), parser.ParseComments)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not reparse file: %w", err)
 	}

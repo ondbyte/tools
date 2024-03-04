@@ -425,7 +425,7 @@ func printObjects(format string, objects []any) {
 // The syntax tree must have been parsed with the ParseComments flag.
 // Example:
 //
-//	f, err := parser.ParseFile(fset, filename, src, parser.ParseComments|parser.PackageClauseOnly)
+//	_, f, err := parser.ParseFile(fset, filename, src, parser.ParseComments|parser.PackageClauseOnly)
 //	if err != nil { ... }
 //	gen := ast.IsGenerated(f)
 func isGenerated(file *ast.File) bool {

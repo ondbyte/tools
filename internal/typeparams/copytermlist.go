@@ -14,13 +14,14 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 )
@@ -37,7 +38,7 @@ func doCopy() error {
 	for _, name := range []string{"typeterm.go", "termlist.go"} {
 		path := filepath.Join(dir, name)
 		fset := token.NewFileSet()
-		file, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+		_, file, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 		if err != nil {
 			return err
 		}

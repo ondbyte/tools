@@ -138,7 +138,7 @@ var tests = []test{
 	{"BenchmarkCompiler", compile{"cmd/compile/internal/gc"}},
 	{"BenchmarkSSA", compile{"cmd/compile/internal/ssa"}},
 	{"BenchmarkFlate", compile{"compress/flate"}},
-	{"BenchmarkGoParser", compile{"go/parser"}},
+	{"BenchmarkGoParser", compile{"golang.org/x/tools/parser"}},
 	{"BenchmarkReflect", compile{"reflect"}},
 	{"BenchmarkTar", compile{"archive/tar"}},
 	{"BenchmarkXML", compile{"encoding/xml"}},

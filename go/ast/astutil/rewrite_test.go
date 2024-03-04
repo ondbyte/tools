@@ -8,9 +8,10 @@ import (
 	"bytes"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 )
@@ -248,7 +249,7 @@ func TestRewrite(t *testing.T) {
 			t.Run(test.name, func(t *testing.T) {
 				t.Parallel()
 				fset := token.NewFileSet()
-				f, err := parser.ParseFile(fset, test.name, test.orig, parser.ParseComments)
+				_, f, err := parser.ParseFile(fset, test.name, test.orig, parser.ParseComments)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -274,7 +275,7 @@ func BenchmarkRewrite(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				b.StopTimer()
 				fset := token.NewFileSet()
-				f, err := parser.ParseFile(fset, test.name, test.orig, parser.ParseComments)
+				_, f, err := parser.ParseFile(fset, test.name, test.orig, parser.ParseComments)
 				if err != nil {
 					b.Fatal(err)
 				}

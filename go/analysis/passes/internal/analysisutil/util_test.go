@@ -6,10 +6,11 @@ package analysisutil_test
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/analysis/passes/internal/analysisutil"
 )
@@ -28,7 +29,7 @@ func _() {
 }
 `
 	fset := token.NewFileSet()
-	file, err := parser.ParseFile(fset, "p.go", src, 0)
+	_, file, err := parser.ParseFile(fset, "p.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

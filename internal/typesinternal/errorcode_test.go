@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/constant"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"path/filepath"
@@ -16,6 +15,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 )
 
 func TestErrorCodes(t *testing.T) {
@@ -75,7 +76,7 @@ func TestErrorCodes(t *testing.T) {
 // The given file must type-check cleanly as a standalone file.
 func loadCodes(filepath string) (map[string]int64, error) {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, filepath, nil, 0)
+	_, f, err := parser.ParseFile(fset, filepath, nil, 0)
 	if err != nil {
 		return nil, err
 	}

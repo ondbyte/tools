@@ -55,7 +55,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"log"
 	"os"
@@ -63,6 +62,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"golang.org/x/tools/parser"
 )
 
 // ProcessFiles invokes the cgo preprocessor on bp.CgoFiles, parses
@@ -90,7 +91,7 @@ func ProcessFiles(bp *build.Package, fset *token.FileSet, DisplayPath func(path 
 			return nil, err
 		}
 		display := filepath.Join(bp.Dir, cgoDisplayFiles[i])
-		f, err := parser.ParseFile(fset, display, rd, mode)
+		_, f, err := parser.ParseFile(fset, display, rd, mode)
 		rd.Close()
 		if err != nil {
 			return nil, err

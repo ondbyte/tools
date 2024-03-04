@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io/fs"
@@ -26,6 +25,8 @@ import (
 	"sync"
 	"unicode"
 	"unicode/utf8"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/internal/event"
@@ -123,7 +124,7 @@ func parseOtherFiles(fset *token.FileSet, srcDir, filename string) []*ast.File {
 			continue
 		}
 
-		f, err := parser.ParseFile(fset, filepath.Join(srcDir, fi.Name()), nil, 0)
+		_, f, err := parser.ParseFile(fset, filepath.Join(srcDir, fi.Name()), nil, 0)
 		if err != nil {
 			continue
 		}
@@ -1338,7 +1339,7 @@ func packageDirToName(dir string) (packageName string, err error) {
 		fullFile := filepath.Join(dir, name)
 
 		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, fullFile, nil, parser.PackageClauseOnly)
+		_, f, err := parser.ParseFile(fset, fullFile, nil, parser.PackageClauseOnly)
 		if err != nil {
 			lastErr = err
 			continue
@@ -1564,7 +1565,7 @@ func loadExportsFromFiles(ctx context.Context, env *ProcessEnv, dir string, incl
 		}
 
 		fullFile := filepath.Join(dir, fi.Name())
-		f, err := parser.ParseFile(fset, fullFile, nil, 0)
+		_, f, err := parser.ParseFile(fset, fullFile, nil, 0)
 		if err != nil {
 			if env.Logf != nil {
 				env.Logf("error parsing %v: %v", fullFile, err)

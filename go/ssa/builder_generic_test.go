@@ -7,11 +7,12 @@ package ssa_test
 import (
 	"bytes"
 	"fmt"
-	"go/parser"
 	"go/token"
 	"reflect"
 	"sort"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/expect"
 	"golang.org/x/tools/go/loader"
@@ -841,7 +842,7 @@ func TestInstructionString(t *testing.T) {
 // packageName is a test helper to extract the package name from a string
 // containing the content of a go file.
 func packageName(t testing.TB, content string) string {
-	f, err := parser.ParseFile(token.NewFileSet(), "", content, parser.PackageClauseOnly)
+	_, f, err := parser.ParseFile(token.NewFileSet(), "", content, parser.PackageClauseOnly)
 	if err != nil {
 		t.Fatalf("parsing the file %q failed with error: %s", content, err)
 	}

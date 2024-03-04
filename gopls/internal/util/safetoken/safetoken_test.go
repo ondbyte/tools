@@ -6,11 +6,12 @@ package safetoken_test
 
 import (
 	"fmt"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/gopls/internal/util/safetoken"

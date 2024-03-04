@@ -11,7 +11,6 @@ package cache
 import (
 	"context"
 	"fmt"
-	"go/parser"
 	"go/scanner"
 	"go/token"
 	"log"
@@ -19,6 +18,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/gopls/internal/cache/metadata"

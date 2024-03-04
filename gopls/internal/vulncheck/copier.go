@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"go/parser"
 	"go/token"
 	"log"
 	"os"
@@ -25,6 +24,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/edit"
 )
@@ -75,7 +76,7 @@ func copyFiles(dst, src string, cfg rewrite) {
 			log.Fatal(err)
 		}
 		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, fname, data, parser.ParseComments|parser.ImportsOnly)
+		_, f, err := parser.ParseFile(fset, fname, data, parser.ParseComments|parser.ImportsOnly)
 		if err != nil {
 			log.Fatalf("parsing source module:\n%s", err)
 		}

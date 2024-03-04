@@ -6,10 +6,11 @@ package ssa
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 )
 
 func TestIsParameterized(t *testing.T) {
@@ -31,7 +32,7 @@ func (v *V[T]) Push(x T) { *v = append(*v, x) }
 `
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "hello.go", source, 0)
+	_, f, err := parser.ParseFile(fset, "hello.go", source, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -10,10 +10,11 @@ package ssa_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/expect"
 	"golang.org/x/tools/go/ssa"
@@ -49,7 +50,7 @@ func TestMultipleGoversions(t *testing.T) {
 	fset := token.NewFileSet()
 	var files []*ast.File
 	for _, fname := range []string{"post.go", "pre.go"} {
-		file, err := parser.ParseFile(fset, fname, contents[fname], 0)
+		_, file, err := parser.ParseFile(fset, fname, contents[fname], 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -149,7 +150,7 @@ func TestRangeOverInt(t *testing.T) {
 	testenv.NeedsGoExperiment(t, "range")
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "p.go", rangeOverIntSrc, parser.ParseComments)
+	_, f, err := parser.ParseFile(fset, "p.go", rangeOverIntSrc, parser.ParseComments)
 	if err != nil {
 		t.Fatal(err)
 	}

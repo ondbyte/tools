@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"go/ast"
 	constantpkg "go/constant"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
@@ -24,6 +23,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/go/packages/packagestest"
@@ -905,7 +906,7 @@ func testParseFileModifyAST(t *testing.T, exporter packagestest.Exporter) {
 	exported.Config.Mode = packages.LoadAllSyntax
 	exported.Config.ParseFile = func(fset *token.FileSet, filename string, src []byte) (*ast.File, error) {
 		const mode = parser.AllErrors | parser.ParseComments
-		f, err := parser.ParseFile(fset, filename, src, mode)
+		_, f, err := parser.ParseFile(fset, filename, src, mode)
 		// modify AST to change `const A = "a"` to `const A = "b"`
 		spec := f.Decls[0].(*ast.GenDecl).Specs[0].(*ast.ValueSpec)
 		spec.Values[0].(*ast.BasicLit).Value = `"b"`
@@ -2473,7 +2474,7 @@ func testIssue37098(t *testing.T, exporter packagestest.Exporter) {
 
 			// Validate that each file can be parsed as a Go source.
 			fset := token.NewFileSet()
-			_, err := parser.ParseFile(fset, file, nil, parser.ImportsOnly)
+			_, _, err := parser.ParseFile(fset, file, nil, parser.ImportsOnly)
 			if err != nil {
 				t.Errorf("Failed to parse file '%s' as a Go source: %v", file, err)
 

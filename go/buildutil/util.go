@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"io"
 	"io/ioutil"
@@ -16,6 +15,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/parser"
 )
 
 // ParseFile behaves like parser.ParseFile,
@@ -40,7 +41,8 @@ func ParseFile(fset *token.FileSet, ctxt *build.Context, displayPath func(string
 	if displayPath != nil {
 		file = displayPath(file)
 	}
-	return parser.ParseFile(fset, file, rd, mode)
+	_, f, err := parser.ParseFile(fset, file, rd, mode)
+	return f, err
 }
 
 // ContainingPackage returns the package containing filename.

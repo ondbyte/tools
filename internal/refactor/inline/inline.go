@@ -10,13 +10,14 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"go/types"
 	pathpkg "path"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/types/typeutil"
@@ -199,7 +200,7 @@ func Inline(logf func(string, ...any), caller *Caller, callee *Callee) ([]byte, 
 		}
 		out.Write(caller.Content[end:])
 		const mode = parser.ParseComments | parser.SkipObjectResolution | parser.AllErrors
-		f, err = parser.ParseFile(caller.Fset, "callee.go", &out, mode)
+		_, f, err = parser.ParseFile(caller.Fset, "callee.go", &out, mode)
 		if err != nil {
 			// Something has gone very wrong.
 			logf("failed to parse <<%s>>", &out) // debugging

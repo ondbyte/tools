@@ -34,7 +34,6 @@ import (
 	"go/ast"
 	"go/build"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
@@ -46,6 +45,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/internal/analysisflags"
@@ -237,7 +238,7 @@ func run(fset *token.FileSet, cfg *Config, analyzers []*analysis.Analyzer) ([]re
 	// Load, parse, typecheck.
 	var files []*ast.File
 	for _, name := range cfg.GoFiles {
-		f, err := parser.ParseFile(fset, name, nil, parser.ParseComments)
+		_, f, err := parser.ParseFile(fset, name, nil, parser.ParseComments)
 		if err != nil {
 			if cfg.SucceedOnTypecheckFailure {
 				// Silently succeed; let the compiler

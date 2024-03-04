@@ -8,8 +8,9 @@ import (
 	"context"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/types"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/types/typeutil"

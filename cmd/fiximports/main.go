@@ -73,7 +73,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"io"
 	"log"
@@ -84,6 +83,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 )
 
 // flags
@@ -393,7 +394,7 @@ func rewritePackage(client *listPackage, canonical map[string]canonicalName) boo
 // used[P]=="" indicates that P was imported but its canonical path is unknown.
 func rewriteFile(filename string, canonical map[string]canonicalName, used map[string]bool) error {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
+	_, f, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
 	if err != nil {
 		return err
 	}

@@ -7,13 +7,14 @@ package copyright
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"golang.org/x/tools/parser"
 )
 
 func checkCopyright(dir string) ([]string, error) {
@@ -69,7 +70,7 @@ func checkFile(toolsDir, filename string) (bool, error) {
 		return false, err
 	}
 	fset := token.NewFileSet()
-	parsed, err := parser.ParseFile(fset, filename, content, parser.ParseComments)
+	_, parsed, err := parser.ParseFile(fset, filename, content, parser.ParseComments)
 	if err != nil {
 		return false, err
 	}

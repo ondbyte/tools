@@ -7,10 +7,11 @@ package golang
 import (
 	"bytes"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/versions"
 )
@@ -46,7 +47,7 @@ func TestSearchForEnclosing(t *testing.T) {
 		test := test
 		t.Run(test.desc, func(t *testing.T) {
 			fset := token.NewFileSet()
-			file, err := parser.ParseFile(fset, "a.go", test.src, parser.AllErrors)
+			_, file, err := parser.ParseFile(fset, "a.go", test.src, parser.AllErrors)
 			if err != nil {
 				t.Fatal(err)
 			}

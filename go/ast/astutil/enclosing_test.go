@@ -13,10 +13,11 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 )
@@ -40,7 +41,7 @@ func pathToString(path []ast.Node) string {
 // the first occurrence of substr in input.  f==nil indicates failure;
 // an error has already been reported in that case.
 func findInterval(t *testing.T, fset *token.FileSet, input, substr string) (f *ast.File, start, end token.Pos) {
-	f, err := parser.ParseFile(fset, "<input>", input, 0)
+	_, f, err := parser.ParseFile(fset, "<input>", input, 0)
 	if err != nil {
 		t.Errorf("parse error: %s", err)
 		return

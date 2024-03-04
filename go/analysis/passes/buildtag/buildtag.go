@@ -11,10 +11,11 @@ package buildtag
 import (
 	"go/ast"
 	"go/build/constraint"
-	"go/parser"
 	"go/token"
 	"strings"
 	"unicode"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/internal/analysisutil"
@@ -40,7 +41,7 @@ func runBuildTag(pass *analysis.Pass) (interface{}, error) {
 	}
 	for _, name := range pass.IgnoredFiles {
 		if strings.HasSuffix(name, ".go") {
-			f, err := parser.ParseFile(pass.Fset, name, nil, parser.ParseComments|parser.SkipObjectResolution)
+			_, f, err := parser.ParseFile(pass.Fset, name, nil, parser.ParseComments|parser.SkipObjectResolution)
 			if err != nil {
 				// Not valid Go source code - not our job to diagnose, so ignore.
 				return nil, nil

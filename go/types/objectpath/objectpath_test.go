@@ -9,11 +9,12 @@ import (
 	"fmt"
 	"go/ast"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/buildutil"
 	"golang.org/x/tools/go/gcexportdata"
@@ -249,7 +250,7 @@ func (unreachable) F() {} // not reachable in export data
 
 	// Parse source file and type-check it as a package, "src".
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "src.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "src.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

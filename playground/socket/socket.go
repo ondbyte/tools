@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"go/parser"
 	"go/token"
 	"io"
 	"log"
@@ -32,6 +31,8 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/net/websocket"
 	"golang.org/x/tools/txtar"
@@ -485,7 +486,7 @@ func (p *process) naclCmd(bin string) (*exec.Cmd, error) {
 }
 
 func packageName(body string) (string, error) {
-	f, err := parser.ParseFile(token.NewFileSet(), "prog.go",
+	_, f, err := parser.ParseFile(token.NewFileSet(), "prog.go",
 		strings.NewReader(body), parser.PackageClauseOnly)
 	if err != nil {
 		return "", err

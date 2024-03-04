@@ -9,12 +9,13 @@ package main
 import (
 	"fmt"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/buildutil"

@@ -9,12 +9,13 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"sort"
 	"strings"
 	"text/scanner"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/ast/astutil"

@@ -13,7 +13,6 @@ import (
 	"go/ast"
 	"go/constant"
 	goimporter "go/importer"
-	goparser "go/parser"
 	"go/token"
 	"go/types"
 	"os"
@@ -26,6 +25,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	goparser "golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/aliases"
 	"golang.org/x/tools/internal/goroot"
@@ -260,7 +261,7 @@ func TestImportTypeparamTests(t *testing.T) {
 
 func checkFile(t *testing.T, filename string, src []byte) *types.Package {
 	fset := token.NewFileSet()
-	f, err := goparser.ParseFile(fset, filename, src, 0)
+	_, f, err := goparser.ParseFile(fset, filename, src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -768,7 +769,7 @@ type StillBad[P any] *interface{b(P)}
 type K = StillBad[string]
 `
 	fset := token.NewFileSet()
-	f, err := goparser.ParseFile(fset, "p.go", src, 0)
+	_, f, err := goparser.ParseFile(fset, "p.go", src, 0)
 	if f == nil {
 		// Some test cases may have parse errors, but we must always have a
 		// file.
@@ -864,7 +865,7 @@ func TestExportInvalid(t *testing.T) {
 			// Parse the ill-typed input.
 			fset := token.NewFileSet()
 
-			f, err := goparser.ParseFile(fset, "p.go", test.src, 0)
+			_, f, err := goparser.ParseFile(fset, "p.go", test.src, 0)
 			if f == nil {
 				// Some test cases may have parse errors, but we must always have a
 				// file.

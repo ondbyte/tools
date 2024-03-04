@@ -15,7 +15,6 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"log"
@@ -29,6 +28,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/go/analysis"

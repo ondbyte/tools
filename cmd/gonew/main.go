@@ -37,7 +37,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"go/parser"
 	"go/token"
 	"io/fs"
 	"log"
@@ -47,6 +46,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
@@ -167,7 +168,7 @@ func main() {
 // in which case we also update the package name.
 func fixGo(data []byte, file string, srcMod, dstMod string, isRoot bool) []byte {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, file, data, parser.ImportsOnly)
+	_, f, err := parser.ParseFile(fset, file, data, parser.ImportsOnly)
 	if err != nil {
 		log.Fatalf("parsing source module:\n%s", err)
 	}

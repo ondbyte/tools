@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"go/ast"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/testenv"
 	"golang.org/x/tools/internal/versions"
@@ -65,7 +66,7 @@ func Test(t *testing.T) {
 }
 
 func parse(t *testing.T, fset *token.FileSet, name, src string) *ast.File {
-	file, err := parser.ParseFile(fset, name, src, 0)
+	_, file, err := parser.ParseFile(fset, name, src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

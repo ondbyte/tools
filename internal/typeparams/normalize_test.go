@@ -6,12 +6,13 @@ package typeparams_test
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"regexp"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	. "golang.org/x/tools/internal/typeparams"
 )
@@ -53,7 +54,7 @@ type T[P interface{ A|B; C }] int
 
 	for _, test := range tests {
 		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, "p.go", test.src, 0)
+		_, f, err := parser.ParseFile(fset, "p.go", test.src, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

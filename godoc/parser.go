@@ -10,9 +10,10 @@ package godoc
 import (
 	"bytes"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	pathpkg "path"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/godoc/vfs"
 )
@@ -56,7 +57,8 @@ func (c *Corpus) parseFile(fset *token.FileSet, filename string, mode parser.Mod
 	// TODO(gri,dmitshur) Remove this in favor of a better fix, eventually (see issue 32092).
 	replaceLinePrefixCommentsWithBlankLine(src)
 
-	return parser.ParseFile(fset, filename, src, mode)
+	_, f, err := parser.ParseFile(fset, filename, src, mode)
+	return f, err
 }
 
 func (c *Corpus) parseFiles(fset *token.FileSet, relpath string, abspath string, localnames []string) (map[string]*ast.File, error) {

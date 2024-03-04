@@ -77,7 +77,7 @@ var importablePackages = [...]string{
 	"go/build",
 	"go/doc",
 	// "go/format", // Added in GCC 4.8.
-	"go/parser",
+	"golang.org/x/tools/parser",
 	"go/printer",
 	"go/scanner",
 	"go/token",

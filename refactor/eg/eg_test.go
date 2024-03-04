@@ -14,7 +14,6 @@ import (
 	"flag"
 	"go/build"
 	"go/constant"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
@@ -23,6 +22,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/loader"
 	"golang.org/x/tools/internal/testenv"

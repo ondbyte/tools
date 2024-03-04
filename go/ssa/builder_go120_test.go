@@ -9,10 +9,11 @@ package ssa_test
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
@@ -85,7 +86,7 @@ func TestBuildPackageGo120(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			fset := token.NewFileSet()
-			f, err := parser.ParseFile(fset, "p.go", tc.src, 0)
+			_, f, err := parser.ParseFile(fset, "p.go", tc.src, 0)
 			if err != nil {
 				t.Error(err)
 			}

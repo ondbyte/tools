@@ -6,10 +6,11 @@ package ssa_test
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ssa"
 	"golang.org/x/tools/go/ssa/ssautil"
@@ -42,7 +43,7 @@ func selections[T any]() {
 
 	// Parse the file.
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "input.go", input, 0)
+	_, f, err := parser.ParseFile(fset, "input.go", input, 0)
 	if err != nil {
 		t.Error(err)
 		return

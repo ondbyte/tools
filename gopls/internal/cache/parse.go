@@ -7,9 +7,10 @@ package cache
 import (
 	"context"
 	"fmt"
-	"go/parser"
 	"go/token"
 	"path/filepath"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/gopls/internal/cache/parsego"
 	"golang.org/x/tools/gopls/internal/file"

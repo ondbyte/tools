@@ -8,13 +8,14 @@ import (
 	"bytes"
 	"go/ast"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
 	"path"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/go/packages/packagestest"
@@ -39,7 +40,7 @@ func TestBuildPackage(t *testing.T) {
 	// SSA program it builds in ../ssa/builder_test.go.
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "hello.go", hello, 0)
+	_, f, err := parser.ParseFile(fset, "hello.go", hello, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +113,7 @@ func NewBuffer(buf []byte) *Buffer:
 
 func TestBuildPackage_MissingImport(t *testing.T) {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "bad.go", `package bad; import "missing"`, 0)
+	_, f, err := parser.ParseFile(fset, "bad.go", `package bad; import "missing"`, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

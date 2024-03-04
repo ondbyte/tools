@@ -7,11 +7,12 @@ package typeutil_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/types/typeutil"
 	"golang.org/x/tools/internal/versions"
@@ -131,7 +132,7 @@ func testStaticCallee(t *testing.T, contents []string) {
 	var files []*ast.File
 	for i, content := range contents {
 		// parse
-		f, err := parser.ParseFile(fset, fmt.Sprintf("%d.go", i), content, 0)
+		_, f, err := parser.ParseFile(fset, fmt.Sprintf("%d.go", i), content, 0)
 		if err != nil {
 			t.Fatal(err)
 		}

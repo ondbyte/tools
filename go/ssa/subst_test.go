@@ -6,10 +6,11 @@ package ssa
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 )
 
 func TestSubst(t *testing.T) {
@@ -44,7 +45,7 @@ var _ L[int] = Fn0[L[int]](nil)
 `
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "hello.go", source, 0)
+	_, f, err := parser.ParseFile(fset, "hello.go", source, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

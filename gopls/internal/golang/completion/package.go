@@ -10,13 +10,14 @@ import (
 	"errors"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/scanner"
 	"go/token"
 	"go/types"
 	"path/filepath"
 	"strings"
 	"unicode"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/gopls/internal/cache"
 	"golang.org/x/tools/gopls/internal/cache/parsego"

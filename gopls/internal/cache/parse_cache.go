@@ -9,12 +9,13 @@ import (
 	"container/heap"
 	"context"
 	"fmt"
-	"go/parser"
 	"go/token"
 	"math/bits"
 	"runtime"
 	"sync"
 	"time"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/gopls/internal/cache/parsego"

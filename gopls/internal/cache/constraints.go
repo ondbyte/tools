@@ -7,15 +7,16 @@ package cache
 import (
 	"go/ast"
 	"go/build/constraint"
-	"go/parser"
 	"go/token"
+
+	"golang.org/x/tools/parser"
 )
 
 // isStandaloneFile reports whether a file with the given contents should be
 // considered a 'standalone main file', meaning a package that consists of only
 // a single file.
 func isStandaloneFile(src []byte, standaloneTags []string) bool {
-	f, err := parser.ParseFile(token.NewFileSet(), "", src, parser.PackageClauseOnly|parser.ParseComments)
+	_, f, err := parser.ParseFile(token.NewFileSet(), "", src, parser.PackageClauseOnly|parser.ParseComments)
 	if err != nil {
 		return false
 	}

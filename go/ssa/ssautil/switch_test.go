@@ -10,9 +10,10 @@
 package ssautil_test
 
 import (
-	"go/parser"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/loader"
 	"golang.org/x/tools/go/ssa"

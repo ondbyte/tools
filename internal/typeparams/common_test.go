@@ -6,10 +6,11 @@ package typeparams_test
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	. "golang.org/x/tools/internal/typeparams"
 )
@@ -49,7 +50,7 @@ func (r N[B]) m() { r.m(); r.n() }
 func (r *N[C]) n() { }
 `
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "p.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "p.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +125,7 @@ func TestOriginMethodUses(t *testing.T) {
 
 	for _, src := range tests {
 		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, "p.go", "package p; "+src, 0)
+		_, f, err := parser.ParseFile(fset, "p.go", "package p; "+src, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -164,7 +165,7 @@ func TestOriginMethodUses(t *testing.T) {
 func TestOriginMethod60628(t *testing.T) {
 	const src = `package p; type T[P any] *int; func (r *T[A]) f() {}`
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "p.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "p.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +254,7 @@ func TestGenericAssignableTo(t *testing.T) {
 
 	for _, test := range tests {
 		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, "p.go", "package p; "+test.src, 0)
+		_, f, err := parser.ParseFile(fset, "p.go", "package p; "+test.src, 0)
 		if err != nil {
 			t.Fatalf("%s:\n%v", test.src, err)
 		}

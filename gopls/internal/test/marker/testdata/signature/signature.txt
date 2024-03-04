@@ -200,7 +200,7 @@ func _() {
 }
 
 /* "fmt" */ //@item(fmtImport, "fmt", "\"fmt\"", "package")
-/* "go/parser" */ //@item(parserImport, "parser", "\"go/parser\"", "package")
+/* "golang.org/x/tools/parser" */ //@item(parserImport, "parser", "\"go/parser\"", "package")
 /* "golang.org/lsptests/signature" */ //@item(signatureImport, "signature", "\"golang.org/lsptests/signature\"", "package")
 /* "golang.org/lsptests/" */ //@item(lsptestsImport, "lsptests/", "\"golang.org/lsptests/\"", "package")
 /* "crypto/elliptic" */ //@item(cryptoImport, "elliptic", "\"crypto/elliptic\"", "package")

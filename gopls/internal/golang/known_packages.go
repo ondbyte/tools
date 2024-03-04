@@ -6,12 +6,13 @@ package golang
 
 import (
 	"context"
-	"go/parser"
 	"go/token"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/gopls/internal/cache"
 	"golang.org/x/tools/gopls/internal/cache/metadata"
@@ -41,7 +42,7 @@ func KnownPackagePaths(ctx context.Context, snapshot *cache.Snapshot, fh file.Ha
 	if err != nil {
 		return nil, err
 	}
-	file, err := parser.ParseFile(token.NewFileSet(), fh.URI().Path(), src, parser.ImportsOnly)
+	_, file, err := parser.ParseFile(token.NewFileSet(), fh.URI().Path(), src, parser.ImportsOnly)
 	if err != nil {
 		return nil, err
 	}

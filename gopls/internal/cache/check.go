@@ -9,7 +9,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"regexp"
@@ -18,6 +17,8 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/mod/module"
 	"golang.org/x/sync/errgroup"

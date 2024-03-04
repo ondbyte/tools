@@ -12,10 +12,11 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"strings"
 	"text/scanner"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/gopls/internal/cache"
 	"golang.org/x/tools/gopls/internal/cache/parsego"
@@ -208,7 +209,7 @@ func computeFixEdits(pgf *parsego.File, options *imports.Options, fixes []*impor
 func importPrefix(src []byte) (string, error) {
 	fset := token.NewFileSet()
 	// do as little parsing as possible
-	f, err := parser.ParseFile(fset, "", src, parser.ImportsOnly|parser.ParseComments)
+	_, f, err := parser.ParseFile(fset, "", src, parser.ImportsOnly|parser.ParseComments)
 	if err != nil { // This can happen if 'package' is misspelled
 		return "", fmt.Errorf("importPrefix: failed to parse: %s", err)
 	}

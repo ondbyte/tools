@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
@@ -19,6 +18,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/gcimporter"
 	"golang.org/x/tools/internal/testenv"
@@ -74,7 +75,7 @@ func testExportSrc(t *testing.T, src []byte) {
 	testenv.NeedsGoBuild(t)
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "g.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "g.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,7 +230,7 @@ func (t *testImporter) Import(path string) (*types.Package, error) {
 
 	// Type-check, but don't return this package directly.
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, path+".go", src, 0)
+	_, f, err := parser.ParseFile(fset, path+".go", src, 0)
 	if err != nil {
 		return nil, err
 	}

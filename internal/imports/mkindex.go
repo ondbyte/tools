@@ -17,13 +17,14 @@ import (
 	"go/ast"
 	"go/build"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/parser"
 )
 
 var (
@@ -158,7 +159,7 @@ func loadExports(dir string) map[string]bool {
 		return nil
 	}
 	for _, file := range buildPkg.GoFiles {
-		f, err := parser.ParseFile(fset, filepath.Join(dir, file), nil, 0)
+		_, f, err := parser.ParseFile(fset, filepath.Join(dir, file), nil, 0)
 		if err != nil {
 			log.Printf("could not parse %q: %v", file, err)
 			continue

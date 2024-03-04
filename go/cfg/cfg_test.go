@@ -9,9 +9,10 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/token"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/cfg"
 	"golang.org/x/tools/go/packages"
@@ -139,7 +140,7 @@ func TestDeadCode(t *testing.T) {
 	// We'll use dead code detection to verify the CFG.
 
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "dummy.go", src, parser.Mode(0))
+	_, f, err := parser.ParseFile(fset, "dummy.go", src, parser.Mode(0))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -7,10 +7,11 @@ package typeutil_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"sort"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/types/typeutil"
 )
@@ -29,7 +30,7 @@ func g(rune) (uint8, bool)
 
 	// Parse and type-check the package.
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "P.go", source, 0)
+	_, f, err := parser.ParseFile(fset, "P.go", source, 0)
 	if err != nil {
 		panic(err)
 	}

@@ -11,10 +11,11 @@ import (
 	"encoding/gob"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/types/typeutil"
@@ -365,7 +366,7 @@ func AnalyzeCallee(logf func(string, ...any), fset *token.FileSet, pkg *types.Pa
 func parseCompact(content []byte) (*token.FileSet, *ast.FuncDecl, error) {
 	fset := token.NewFileSet()
 	const mode = parser.ParseComments | parser.SkipObjectResolution | parser.AllErrors
-	f, err := parser.ParseFile(fset, "callee.go", content, mode)
+	_, f, err := parser.ParseFile(fset, "callee.go", content, mode)
 	if err != nil {
 		return nil, nil, fmt.Errorf("internal error: cannot compact file: %v", err)
 	}

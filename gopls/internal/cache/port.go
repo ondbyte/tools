@@ -7,11 +7,12 @@ package cache
 import (
 	"bytes"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"io"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/gopls/internal/util/bug"
 )
@@ -174,7 +175,7 @@ func trimContentForPortMatch(content []byte) []byte {
 // buildComment returns the first matching //go:build comment in the given
 // content, or "" if none exists.
 func buildComment(content []byte) string {
-	f, err := parser.ParseFile(token.NewFileSet(), "", content, parser.PackageClauseOnly|parser.ParseComments)
+	_, f, err := parser.ParseFile(token.NewFileSet(), "", content, parser.PackageClauseOnly|parser.ParseComments)
 	if err != nil {
 		return ""
 	}

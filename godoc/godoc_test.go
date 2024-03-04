@@ -6,10 +6,11 @@ package godoc
 
 import (
 	"bytes"
-	"go/parser"
 	"go/token"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 )
 
 func TestPkgLinkFunc(t *testing.T) {
@@ -229,7 +230,7 @@ func linkifySource(t *testing.T, src []byte) string {
 		DeclLinks: true,
 	}
 	fset := token.NewFileSet()
-	af, err := parser.ParseFile(fset, "foo.go", src, parser.ParseComments)
+	_, af, err := parser.ParseFile(fset, "foo.go", src, parser.ParseComments)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -338,7 +339,7 @@ func TestFilterOutBuildAnnotations(t *testing.T) {
 		"}\n")
 
 	fset := token.NewFileSet()
-	af, err := parser.ParseFile(fset, "foo.go", src, parser.ParseComments)
+	_, af, err := parser.ParseFile(fset, "foo.go", src, parser.ParseComments)
 	if err != nil {
 		t.Fatal(err)
 	}

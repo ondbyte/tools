@@ -14,13 +14,14 @@ package gcexportdata_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/gcexportdata"
 )
@@ -99,7 +100,7 @@ import "net/rpc"
 const serverError rpc.ServerError = ""
 `
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "myrpc.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "myrpc.go", src, 0)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -6,10 +6,11 @@ package versions_test
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/testenv"
 	"golang.org/x/tools/internal/versions"
@@ -199,7 +200,7 @@ func TestFileVersions122(t *testing.T) {
 	package P
 	`
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "hello.go", source, 0)
+	_, f, err := parser.ParseFile(fset, "hello.go", source, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

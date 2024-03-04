@@ -13,11 +13,12 @@ import (
 	"fmt"
 	"go/ast"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"log"
 	"os"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/go/ssa"
@@ -65,7 +66,7 @@ func Example_buildPackage() {
 	defer ssa.SetNormalizeAnyForTesting(false)
 	// Parse the source files.
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "hello.go", hello, parser.ParseComments)
+	_, f, err := parser.ParseFile(fset, "hello.go", hello, parser.ParseComments)
 	if err != nil {
 		fmt.Print(err) // parse error
 		return

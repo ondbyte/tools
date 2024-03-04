@@ -10,7 +10,6 @@ import (
 	"go/ast"
 	"go/build"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
@@ -19,6 +18,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/buildutil"
 	"golang.org/x/tools/go/loader"
@@ -59,7 +60,7 @@ func main() {
 
 	// Parse the file.
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "input.go", input, 0)
+	_, f, err := parser.ParseFile(fset, "input.go", input, 0)
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -348,7 +349,7 @@ func TestRuntimeTypes(t *testing.T) {
 	for _, test := range tests {
 		// Parse the file.
 		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, "input.go", test.input, 0)
+		_, f, err := parser.ParseFile(fset, "input.go", test.input, 0)
 		if err != nil {
 			t.Errorf("test %q: %s", test.input[:15], err)
 			continue
@@ -1020,7 +1021,7 @@ func TestIssue58491(t *testing.T) {
 		var Inst = foo[int]
 	`
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "p.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "p.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1072,7 +1073,7 @@ func TestIssue58491Rec(t *testing.T) {
 		var Inst = foo[int]
 	`
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "p.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "p.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1196,7 +1197,7 @@ func TestGo117Builtins(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			fset := token.NewFileSet()
-			f, err := parser.ParseFile(fset, "p.go", tc.src, parser.ParseComments)
+			_, f, err := parser.ParseFile(fset, "p.go", tc.src, parser.ParseComments)
 			if err != nil {
 				t.Error(err)
 			}

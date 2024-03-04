@@ -6,9 +6,10 @@ package parsego
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/scanner"
 	"go/token"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/gopls/internal/protocol"
 	"golang.org/x/tools/gopls/internal/util/safetoken"

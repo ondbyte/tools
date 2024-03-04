@@ -6,10 +6,11 @@ package static_test
 
 import (
 	"fmt"
-	"go/parser"
 	"reflect"
 	"sort"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/callgraph"
 	"golang.org/x/tools/go/callgraph/static"

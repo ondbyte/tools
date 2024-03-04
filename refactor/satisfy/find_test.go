@@ -8,12 +8,13 @@ import (
 	"fmt"
 	"go/ast"
 	"go/importer"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"reflect"
 	"sort"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/versions"
 	"golang.org/x/tools/refactor/satisfy"
@@ -208,7 +209,7 @@ func _[P ~struct{F I}]() {
 func constraints(t *testing.T, src string) []string {
 	// parse
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "p.go", src, 0)
+	_, f, err := parser.ParseFile(fset, "p.go", src, 0)
 	if err != nil {
 		t.Fatal(err) // parse error
 	}

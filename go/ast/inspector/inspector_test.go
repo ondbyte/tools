@@ -7,7 +7,6 @@ package inspector_test
 import (
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"log"
 	"path/filepath"
@@ -15,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/inspector"
 )
@@ -38,7 +39,7 @@ func parseNetFiles() ([]*ast.File, error) {
 	var files []*ast.File
 	for _, filename := range pkg.GoFiles {
 		filename = filepath.Join(pkg.Dir, filename)
-		f, err := parser.ParseFile(fset, filename, nil, 0)
+		_, f, err := parser.ParseFile(fset, filename, nil, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -89,7 +90,7 @@ func (*T[i11, i12]) m()
 var _ i13[i14, i15]
 `
 	fset := token.NewFileSet()
-	f, _ := parser.ParseFile(fset, "a.go", src, 0)
+	_, f, _ := parser.ParseFile(fset, "a.go", src, 0)
 	inspect := inspector.New([]*ast.File{f})
 	found := make([]bool, 16)
 
@@ -180,7 +181,7 @@ func f() {
 }
 `
 	fset := token.NewFileSet()
-	f, _ := parser.ParseFile(fset, "a.go", src, 0)
+	_, f, _ := parser.ParseFile(fset, "a.go", src, 0)
 	inspect := inspector.New([]*ast.File{f})
 
 	var got []string

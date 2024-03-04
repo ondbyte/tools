@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
@@ -20,6 +19,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/go/internal/cgo"
@@ -218,7 +219,8 @@ func (conf *Config) fset() *token.FileSet {
 // filename are read from the file system.
 func (conf *Config) ParseFile(filename string, src interface{}) (*ast.File, error) {
 	// TODO(adonovan): use conf.build() etc like parseFiles does.
-	return parser.ParseFile(conf.fset(), filename, src, conf.ParserMode)
+	_, f, err := parser.ParseFile(conf.fset(), filename, src, conf.ParserMode)
+	return f, err
 }
 
 // FromArgsUsage is a partial usage message that applications calling

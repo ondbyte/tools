@@ -3376,7 +3376,7 @@ var stdlib = map[string][]string{
 		"ForCompiler",
 		"Lookup",
 	},
-	"go/parser": {
+	"golang.org/x/tools/parser": {
 		"AllErrors",
 		"DeclarationErrors",
 		"ImportsOnly",

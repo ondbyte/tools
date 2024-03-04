@@ -7,12 +7,13 @@ package loader
 import (
 	"go/ast"
 	"go/build"
-	"go/parser"
 	"go/token"
 	"io"
 	"os"
 	"strconv"
 	"sync"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/buildutil"
 )
@@ -59,7 +60,7 @@ func parseFiles(fset *token.FileSet, ctxt *build.Context, displayPath func(strin
 			}
 
 			// ParseFile may return both an AST and an error.
-			parsed[i], errors[i] = parser.ParseFile(fset, displayPath(file), rd, mode)
+			_, parsed[i], errors[i] = parser.ParseFile(fset, displayPath(file), rd, mode)
 			rd.Close()
 		}(i, file)
 	}

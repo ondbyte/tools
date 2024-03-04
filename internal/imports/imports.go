@@ -15,13 +15,14 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
-	"go/parser"
 	"go/printer"
 	"go/token"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/ast/astutil"
 	"golang.org/x/tools/internal/event"
@@ -97,7 +98,7 @@ func ApplyFixes(fixes []*ImportFix, filename string, src []byte, opt *Options, e
 	}
 	parserMode |= extraMode
 
-	file, err := parser.ParseFile(fileSet, filename, src, parserMode)
+	_, file, err := parser.ParseFile(fileSet, filename, src, parserMode)
 	if file == nil {
 		return nil, err
 	}
@@ -176,7 +177,7 @@ func parse(fset *token.FileSet, filename string, src []byte, opt *Options) (*ast
 	}
 
 	// Try as whole source file.
-	file, err := parser.ParseFile(fset, filename, src, parserMode)
+	_, file, err := parser.ParseFile(fset, filename, src, parserMode)
 	if err == nil {
 		return file, nil, nil
 	}
@@ -193,7 +194,7 @@ func parse(fset *token.FileSet, filename string, src []byte, opt *Options) (*ast
 	// the correct line.
 	const prefix = "package main;"
 	psrc := append([]byte(prefix), src...)
-	file, err = parser.ParseFile(fset, filename, psrc, parserMode)
+	_, file, err = parser.ParseFile(fset, filename, psrc, parserMode)
 	if err == nil {
 		// Gofmt will turn the ; into a \n.
 		// Do that ourselves now and update the file contents,
@@ -227,7 +228,7 @@ func parse(fset *token.FileSet, filename string, src []byte, opt *Options) (*ast
 	// Insert using a ;, not a newline, so that the line numbers
 	// in fsrc match the ones in src.
 	fsrc := append(append([]byte("package p; func _() {"), src...), '}')
-	file, err = parser.ParseFile(fset, filename, fsrc, parserMode)
+	_, file, err = parser.ParseFile(fset, filename, fsrc, parserMode)
 	if err == nil {
 		adjust := func(orig, src []byte) []byte {
 			// Remove the wrapping.

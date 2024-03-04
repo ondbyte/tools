@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"path/filepath"
@@ -17,6 +16,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/aliases"
 	"golang.org/x/tools/internal/gcimporter"
@@ -299,7 +300,7 @@ func TestVeryLongFile(t *testing.T) {
 	// parse and typecheck
 	longFile := "package foo" + strings.Repeat("\n", 123456) + "var X int"
 	fset1 := token.NewFileSet()
-	f, err := parser.ParseFile(fset1, "foo.go", longFile, 0)
+	_, f, err := parser.ParseFile(fset1, "foo.go", longFile, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

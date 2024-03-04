@@ -7,12 +7,13 @@ package gcimporter_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"os"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/go/packages"
@@ -81,7 +82,7 @@ func typecheck(t *testing.T, ppkg *packages.Package) {
 	for i, filename := range ppkg.CompiledGoFiles {
 		i, filename := i, filename
 		group.Go(func() error {
-			f, err := parser.ParseFile(fset, filename, nil, parser.SkipObjectResolution)
+			_, f, err := parser.ParseFile(fset, filename, nil, parser.SkipObjectResolution)
 			if err != nil {
 				return err // e.g. missing file
 			}

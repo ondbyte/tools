@@ -7,11 +7,12 @@ package directive
 
 import (
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/internal/analysisutil"
@@ -51,7 +52,7 @@ func runDirective(pass *analysis.Pass) (interface{}, error) {
 	}
 	for _, name := range pass.IgnoredFiles {
 		if strings.HasSuffix(name, ".go") {
-			f, err := parser.ParseFile(pass.Fset, name, nil, parser.ParseComments)
+			_, f, err := parser.ParseFile(pass.Fset, name, nil, parser.ParseComments)
 			if err != nil {
 				// Not valid Go source code - not our job to diagnose, so ignore.
 				continue

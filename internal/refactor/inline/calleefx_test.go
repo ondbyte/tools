@@ -7,10 +7,11 @@ package inline_test
 import (
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/internal/refactor/inline"
 )
@@ -111,7 +112,7 @@ func TestCalleeEffects(t *testing.T) {
 		t.Run(test.descr, func(t *testing.T) {
 			fset := token.NewFileSet()
 			mustParse := func(filename string, content any) *ast.File {
-				f, err := parser.ParseFile(fset, filename, content, parser.ParseComments|parser.SkipObjectResolution)
+				_, f, err := parser.ParseFile(fset, filename, content, parser.ParseComments|parser.SkipObjectResolution)
 				if err != nil {
 					t.Fatalf("ParseFile: %v", err)
 				}

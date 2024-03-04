@@ -8,7 +8,6 @@ package godoc
 
 import (
 	"go/doc"
-	"go/parser"
 	"go/token"
 	"log"
 	"os"
@@ -16,6 +15,8 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/godoc/vfs"
 )

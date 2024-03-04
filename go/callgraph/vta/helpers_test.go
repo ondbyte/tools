@@ -8,11 +8,12 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"os"
 	"sort"
 	"strings"
 	"testing"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/tools/go/callgraph"
 	"golang.org/x/tools/go/ssa/ssautil"

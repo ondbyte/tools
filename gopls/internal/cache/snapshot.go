@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/build/constraint"
-	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
@@ -24,6 +23,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"golang.org/x/tools/parser"
 
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/go/packages"

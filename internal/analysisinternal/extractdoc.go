@@ -6,9 +6,10 @@ package analysisinternal
 
 import (
 	"fmt"
-	"go/parser"
 	"go/token"
 	"strings"
+
+	"golang.org/x/tools/parser"
 )
 
 // MustExtractDoc is like [ExtractDoc] but it panics on error.
@@ -90,7 +91,7 @@ func ExtractDoc(content, name string) (string, error) {
 		return "", fmt.Errorf("empty Go source file")
 	}
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "", content, parser.ParseComments|parser.PackageClauseOnly)
+	_, f, err := parser.ParseFile(fset, "", content, parser.ParseComments|parser.PackageClauseOnly)
 	if err != nil {
 		return "", fmt.Errorf("not a Go source file")
 	}
