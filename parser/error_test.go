@@ -163,7 +163,7 @@ func checkErrors(t *testing.T, filename string, input any, mode Mode, expectErro
 	}
 
 	fset := token.NewFileSet()
-	_, err = ParseFile(fset, filename, src, mode)
+	_, _, err = ParseFile(fset, filename, src, mode)
 	found, ok := err.(scanner.ErrorList)
 	if err != nil && !ok {
 		t.Error(err)

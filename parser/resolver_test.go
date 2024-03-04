@@ -41,7 +41,7 @@ func TestResolution(t *testing.T) {
 			path := filepath.Join(dir, fi.Name())
 			src := readFile(path) // panics on failure
 			var mode Mode
-			file, err := ParseFile(fset, path, src, mode)
+			_, file, err := ParseFile(fset, path, src, mode)
 			if err != nil {
 				t.Fatal(err)
 			}

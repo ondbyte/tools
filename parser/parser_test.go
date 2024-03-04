@@ -23,7 +23,7 @@ var validFiles = []string{
 
 func TestParse(t *testing.T) {
 	for _, filename := range validFiles {
-		_, err := ParseFile(token.NewFileSet(), filename, nil, DeclarationErrors)
+		_, _, err := ParseFile(token.NewFileSet(), filename, nil, DeclarationErrors)
 		if err != nil {
 			t.Fatalf("ParseFile(%s): %v", filename, err)
 		}
@@ -44,7 +44,7 @@ func dirFilter(f fs.FileInfo) bool { return nameFilter(f.Name()) }
 
 func TestParseFile(t *testing.T) {
 	src := "package p\nvar _=s[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]+\ns[::]"
-	_, err := ParseFile(token.NewFileSet(), "", src, 0)
+	_, _, err := ParseFile(token.NewFileSet(), "", src, 0)
 	if err == nil {
 		t.Errorf("ParseFile(%s) succeeded unexpectedly", src)
 	}
@@ -160,7 +160,7 @@ func TestParseExpr(t *testing.T) {
 }
 
 func TestColonEqualsScope(t *testing.T) {
-	f, err := ParseFile(token.NewFileSet(), "", `package p; func f() { x, y, z := x, y, z }`, 0)
+	_, f, err := ParseFile(token.NewFileSet(), "", `package p; func f() { x, y, z := x, y, z }`, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestColonEqualsScope(t *testing.T) {
 }
 
 func TestVarScope(t *testing.T) {
-	f, err := ParseFile(token.NewFileSet(), "", `package p; func f() { var x, y, z = x, y, z }`, 0)
+	_, f, err := ParseFile(token.NewFileSet(), "", `package p; func f() { var x, y, z = x, y, z }`, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -212,7 +212,7 @@ var x int
 func f() { L: }
 `
 
-	f, err := ParseFile(token.NewFileSet(), "", src, 0)
+	_, f, err := ParseFile(token.NewFileSet(), "", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -250,7 +250,7 @@ func f() { L: }
 }
 
 func TestUnresolved(t *testing.T) {
-	f, err := ParseFile(token.NewFileSet(), "", `
+	_, f, err := ParseFile(token.NewFileSet(), "", `
 package p
 //
 func f1a(int)
@@ -311,7 +311,7 @@ type s3b struct { a, b *s3b; c []float }
 }
 
 func TestCommentGroups(t *testing.T) {
-	f, err := ParseFile(token.NewFileSet(), "", `
+	_, f, err := ParseFile(token.NewFileSet(), "", `
 package p /* 1a */ /* 1b */      /* 1c */ // 1d
 /* 2a
 */
@@ -405,7 +405,7 @@ func checkFieldComments(t *testing.T, file *ast.File, fieldname, lead, line stri
 }
 
 func TestLeadAndLineComments(t *testing.T) {
-	f, err := ParseFile(token.NewFileSet(), "", `
+	_, f, err := ParseFile(token.NewFileSet(), "", `
 package p
 type T struct {
 	/* F1 lead comment */
@@ -457,7 +457,7 @@ func TestIssue9979(t *testing.T) {
 		"package p; func f() { L: \n; }",
 	} {
 		fset := token.NewFileSet()
-		f, err := ParseFile(fset, "", src, 0)
+		_, f, err := ParseFile(fset, "", src, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -502,7 +502,7 @@ var lastDecl int
 /* end of file */
 `
 	fset := token.NewFileSet()
-	f, err := ParseFile(fset, "file.go", src, 0)
+	_, f, err := ParseFile(fset, "file.go", src, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -526,7 +526,7 @@ func TestIncompleteSelection(t *testing.T) {
 		"package p; var _ = fmt.\ntype X int", // not at EOF
 	} {
 		fset := token.NewFileSet()
-		f, err := ParseFile(fset, "", src, 0)
+		_, f, err := ParseFile(fset, "", src, 0)
 		if err == nil {
 			t.Errorf("ParseFile(%s) succeeded unexpectedly", src)
 			continue
@@ -561,7 +561,7 @@ func TestLastLineComment(t *testing.T) {
 type x int // comment
 `
 	fset := token.NewFileSet()
-	f, err := ParseFile(fset, "", src, ParseComments)
+	_, f, err := ParseFile(fset, "", src, ParseComments)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -674,7 +674,7 @@ func TestParseDepthLimit(t *testing.T) {
 				input := pre + mid + post
 
 				fset := token.NewFileSet()
-				_, err := ParseFile(fset, "", input, ParseComments|SkipObjectResolution)
+				_, _, err := ParseFile(fset, "", input, ParseComments|SkipObjectResolution)
 				if size == "small" {
 					if err != nil {
 						t.Errorf("ParseFile(...): %v (want success)", err)
@@ -720,7 +720,7 @@ func TestScopeDepthLimit(t *testing.T) {
 				input := pre + mid + post
 
 				fset := token.NewFileSet()
-				_, err := ParseFile(fset, "", input, DeclarationErrors)
+				_, _, err := ParseFile(fset, "", input, DeclarationErrors)
 				if size == "small" {
 					if err != nil {
 						t.Errorf("ParseFile(...): %v (want success)", err)
@@ -748,7 +748,7 @@ func TestRangePos(t *testing.T) {
 
 	for _, src := range testcases {
 		fset := token.NewFileSet()
-		f, err := ParseFile(fset, src, src, 0)
+		_, f, err := ParseFile(fset, src, src, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -775,7 +775,7 @@ func TestIssue59180(t *testing.T) {
 	}
 
 	for _, src := range testcases {
-		_, err := ParseFile(token.NewFileSet(), "", src, ParseComments)
+		_, _, err := ParseFile(token.NewFileSet(), "", src, ParseComments)
 		if err == nil {
 			t.Errorf("ParseFile(%s) succeeded unexpectedly", src)
 		}

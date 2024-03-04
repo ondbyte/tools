@@ -82,7 +82,7 @@ const (
 // errors were found, the result is a partial AST (with [ast.Bad]* nodes
 // representing the fragments of erroneous source code). Multiple errors
 // are returned via a scanner.ErrorList which is sorted by source position.
-func ParseFile(fset *token.FileSet, filename string, src any, mode Mode) (f *ast.File, err error) {
+func ParseFile(fset *token.FileSet, filename string, src any, mode Mode) (df *DecoratedFile, f *ast.File, err error) {
 	if fset == nil {
 		panic("parser.ParseFile: no token.FileSet provided (fset == nil)")
 	}
@@ -90,7 +90,7 @@ func ParseFile(fset *token.FileSet, filename string, src any, mode Mode) (f *ast
 	// get source
 	text, err := readSource(filename, src)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var p parser
@@ -122,7 +122,7 @@ func ParseFile(fset *token.FileSet, filename string, src any, mode Mode) (f *ast
 
 	// parse source
 	p.init(fset, filename, text, mode)
-	f = p.parseFile()
+	_, f = p.parseFile()
 
 	return
 }
@@ -160,7 +160,7 @@ func ParseDir(fset *token.FileSet, path string, filter func(fs.FileInfo) bool, m
 			}
 		}
 		filename := filepath.Join(path, d.Name())
-		if src, err := ParseFile(fset, filename, nil, mode); err == nil {
+		if _, src, err := ParseFile(fset, filename, nil, mode); err == nil {
 			name := src.Name.Name
 			pkg, found := pkgs[name]
 			if !found {

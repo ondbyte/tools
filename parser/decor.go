@@ -9,15 +9,37 @@ import (
 	"go/ast"
 )
 
-type Handler struct {
-	Raw    string
-	Params map[string]bool
+type decoratorName string
+
+var (
+	PATH    decoratorName = "path"
+	DESCR   decoratorName = "description"
+	HANDLER decoratorName = "handler"
+)
+
+type Decorator interface {
+	decoratorName() decoratorName
 }
 
-// handlerDecor implements HandlerDecorExpr.
-func (e *Handler) handlerDecor() {
+// a file which contains possible decorators for multiple Decl's
+type DecoratedFile struct {
+	decorations map[ast.Decl]*DeclDecorators
+}
+
+// a Decl which has decorators
+type DecoratedDecl interface {
+	decoratedDecl()
+}
+
+type DecoratedFuncDecl struct {
+}
+
+// decoratedDecl implements DecoratedDecl.
+func (d *DecoratedFuncDecl) decoratedDecl() {
 	panic("unimplemented")
 }
+
+var _ DecoratedDecl = &DecoratedFuncDecl{}
 
 var endpointRegex = regexp.MustCompile(`endpoint\("([^"]+)"\)`)
 var endpointContentRegex = regexp.MustCompile(`{([^}]*)}`)
@@ -25,6 +47,11 @@ var endpointContentRegex = regexp.MustCompile(`{([^}]*)}`)
 type Path struct {
 	Raw    string
 	Params map[string]ast.Expr
+}
+
+// decorator implements Decorator.
+func (p *Path) decoratorName() decoratorName {
+	return PATH
 }
 
 var pathRegex = regexp.MustCompile(`path\("([^"]+)"\)`)
@@ -50,18 +77,34 @@ type Body struct {
 
 var bodyRegex = regexp.MustCompile(`body\("([^"]+)"\)`)
 
-type Description struct {
+type DescriptionDecor struct {
 	Data string
 }
 
+// decorator implements Decorator.
+func (d *DescriptionDecor) decoratorName() decoratorName {
+	return DESCR
+}
+
+type FuncDecorator struct {
+	Raw    string
+	Params map[string]bool
+}
+
+// decorator implements Decorator.
+func (h *FuncDecorator) decoratorName() decoratorName {
+	panic("unimplemented")
+}
+
 // handlerDecor implements HandlerDecorExpr.
-func (d *Description) handlerDecor() {
+func (d *DescriptionDecor) handlerDecor() {
 	panic("unimplemented")
 }
 
 var descriptionRegex = regexp.MustCompile(`description\("([^"]+)"\)`)
 
-func ParseHandler(ep *ast.CallExpr) (*Handler, error) {
+// parses 'handle(...)'
+func ParseHandler(ep *ast.CallExpr) (*FuncDecorator, error) {
 	if i, ok := ep.Fun.(*ast.Ident); ok {
 		if i.Name != "endpoint" {
 			return nil, nil
@@ -82,7 +125,7 @@ func ParseHandler(ep *ast.CallExpr) (*Handler, error) {
 				}
 				params[match[1]] = true
 			}
-			return &Handler{
+			return &FuncDecorator{
 				Params: params,
 			}, nil
 		}
@@ -113,7 +156,7 @@ func ProcessPath(pathX *ast.CallExpr, paramType ast.Expr) (*Path, error) {
 	return nil, nil
 }
 
-func ParseDescr(ep *ast.CallExpr) (*Description, error) {
+func ParseDescr(ep *ast.CallExpr) (*DescriptionDecor, error) {
 	if i, ok := ep.Fun.(*ast.Ident); ok {
 		if i.Name != "description" {
 			return nil, nil
@@ -126,7 +169,7 @@ func ParseDescr(ep *ast.CallExpr) (*Description, error) {
 			if err != nil {
 				return nil, fmt.Errorf("error unquoting string '%v' : %v", i.Value, err)
 			}
-			return &Description{
+			return &DescriptionDecor{
 				Data: us,
 			}, nil
 		}
@@ -134,7 +177,7 @@ func ParseDescr(ep *ast.CallExpr) (*Description, error) {
 	return nil, nil
 }
 
-func ProcessParamCmt(cmt *ast.Comment, paramType ast.Expr) (any, error) {
+func ParseParamDecorator(cmt *ast.Comment, paramType ast.Expr) (Decorator, error) {
 	text := cmt.Text
 	text = strings.Trim(text, "/")
 	if x, err := ParseExpr(text); err != nil {
@@ -149,11 +192,7 @@ func ProcessParamCmt(cmt *ast.Comment, paramType ast.Expr) (any, error) {
 	return nil, nil
 }
 
-type HandlerDecorExpr interface {
-	handlerDecor()
-}
-
-func ParseHandlerComment(cmt *ast.Comment) (HandlerDecorExpr, error) {
+func ParseFnDecorator(cmt *ast.Comment) (Decorator, error) {
 	text := cmt.Text
 	text = strings.Trim(text, "/")
 	if x, err := ParseExpr(text); err != nil {
@@ -172,30 +211,66 @@ func ParseHandlerComment(cmt *ast.Comment) (HandlerDecorExpr, error) {
 	return nil, nil
 }
 
-type HandlerDecors []HandlerDecorExpr
+type DeclDecorators struct {
+	declName   string
+	decorators map[decoratorName]Decorator
+	params     map[string]*FieldDecorators
+}
 
-func (p *parser) ParseHandlerDecorators(fnName *ast.Ident, fnParams, fnResults *ast.FieldList) (decors HandlerDecors) {
-	decors = make(HandlerDecors, 0)
+type FieldDecorators struct {
+	fieldName  string
+	fieldType  ast.Expr
+	decorators map[decoratorName]Decorator
+}
+
+func (p *parser) ParseFnDecorators(fnName *ast.Ident, fnParams, fnResults *ast.FieldList) (fd *DeclDecorators) {
+	fnDecorators := map[decoratorName]Decorator{}
 	var isHandler = false
 	if p.leadComment != nil && len(p.leadComment.List) > 0 {
 		for _, cmt := range p.leadComment.List {
-			decor, err := ParseHandlerComment(cmt)
+			decor, err := ParseFnDecorator(cmt)
 			if err != nil {
 				p.error(fnName.NamePos, err.Error())
+				continue
 			}
 			if !isHandler {
-				_, isHandler = decor.(*Handler)
+				_, isHandler = decor.(*FuncDecorator)
 				if !isHandler {
 					// dont bother to parse comments for this fn, as the required 'handler' decor is not found
 					return nil
 				}
 			}
-			decors = append(decors, decor)
+			fnDecorators[decor.decoratorName()] = decor
+		}
+	}
+	fd = &DeclDecorators{
+		declName:   fd.declName,
+		decorators: fnDecorators,
+		params:     map[string]*FieldDecorators{},
+	}
+	for _, param := range fnParams.List {
+		if param.Comment == nil || len(param.Comment.List) == 0 {
+			p.error(param.Pos(), "needs a decorator/s")
+		} else {
+			var paramDecorators map[string]Decorator
+			for _, cmt := range param.Comment.List {
+				decor, err := ParseParamDecorator(cmt, param.Type)
+				if err != nil {
+					p.error(param.Pos(), err.Error())
+					continue
+				}
+				paramDecorators[param.Names[0].Name] = decor
+			}
+			if len(paramDecorators) == 0 {
+				p.error(param.Pos(), "found no decorator/s in your comments")
+				continue
+			}
+			fd.params[param.Names[0].Name] = &FieldDecorators{
+				fieldName:  param.Names[0].Name,
+				fieldType:  param.Type,
+				decorators: fnDecorators,
+			}
 		}
 	}
 	return
-}
-
-func (p *parser) ParseParamDecorators() {
-
 }

@@ -2429,7 +2429,8 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 
 	switch p.tok {
 	case token.CONST, token.TYPE, token.VAR:
-		s = &ast.DeclStmt{Decl: p.parseDecl(stmtStart)}
+		_, decl := p.parseDecl(stmtStart)
+		s = &ast.DeclStmt{Decl: decl}
 	case
 		// tokens that may start an expression
 		token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING, token.FUNC, token.LPAREN, // operands
@@ -2755,7 +2756,7 @@ func (p *parser) parseGenDecl(keyword token.Token, f parseSpecFunction) *ast.Gen
 	}
 }
 
-func (p *parser) parseFuncDecl() *ast.FuncDecl {
+func (p *parser) parseFuncDecl() (*DeclDecorators, *ast.FuncDecl) {
 	if p.trace {
 		defer un(trace(p, "FunctionDecl"))
 	}
@@ -2780,7 +2781,7 @@ func (p *parser) parseFuncDecl() *ast.FuncDecl {
 	results := p.parseResult()
 
 	//ogodecorators
-	decors := p.ParseHandlerDecorators(ident, params, results)
+	decors := p.ParseFnDecorators(ident, params, results)
 
 	var body *ast.BlockStmt
 	switch p.tok {
@@ -2811,10 +2812,10 @@ func (p *parser) parseFuncDecl() *ast.FuncDecl {
 		},
 		Body: body,
 	}
-	return decl
+	return decors, decl
 }
 
-func (p *parser) parseDecl(sync map[token.Token]bool) ast.Decl {
+func (p *parser) parseDecl(sync map[token.Token]bool) (*DeclDecorators, ast.Decl) {
 	if p.trace {
 		defer un(trace(p, "Declaration"))
 	}
@@ -2837,16 +2838,17 @@ func (p *parser) parseDecl(sync map[token.Token]bool) ast.Decl {
 		pos := p.pos
 		p.errorExpected(pos, "declaration")
 		p.advance(sync)
-		return &ast.BadDecl{From: pos, To: p.pos}
+		return nil, &ast.BadDecl{From: pos, To: p.pos}
 	}
 
-	return p.parseGenDecl(p.tok, f)
+	g := p.parseGenDecl(p.tok, f)
+	return nil, g
 }
 
 // ----------------------------------------------------------------------------
 // Source files
 
-func (p *parser) parseFile() *ast.File {
+func (p *parser) parseFile() (*DecoratedFile, *ast.File) {
 	if p.trace {
 		defer un(trace(p, "File"))
 	}
@@ -2854,7 +2856,7 @@ func (p *parser) parseFile() *ast.File {
 	// Don't bother parsing the rest if we had errors scanning the first token.
 	// Likely not a Go source file at all.
 	if p.errors.Len() != 0 {
-		return nil
+		return nil, nil
 	}
 
 	// package clause
@@ -2871,10 +2873,11 @@ func (p *parser) parseFile() *ast.File {
 	// Don't bother parsing the rest if we had errors parsing the package clause.
 	// Likely not a Go source file at all.
 	if p.errors.Len() != 0 {
-		return nil
+		return nil, nil
 	}
 
 	var decls []ast.Decl
+	df := &DecoratedFile{decorations: map[ast.Decl]*DeclDecorators{}}
 	if p.mode&PackageClauseOnly == 0 {
 		// import decls
 		for p.tok == token.IMPORT {
@@ -2890,8 +2893,11 @@ func (p *parser) parseFile() *ast.File {
 					p.error(p.pos, "imports must appear before other declarations")
 				}
 				prev = p.tok
-
-				decls = append(decls, p.parseDecl(declStart))
+				decorators, decl := p.parseDecl(declStart)
+				if decorators != nil {
+					df.decorations[decl] = decorators
+				}
+				decls = append(decls, decl)
 			}
 		}
 	}
@@ -2915,5 +2921,5 @@ func (p *parser) parseFile() *ast.File {
 		resolveFile(f, p.file, declErr)
 	}
 
-	return f
+	return df, f
 }
