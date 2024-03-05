@@ -2762,6 +2762,16 @@ func (p *parser) parseFuncDecl() (*DeclDecorators, *ast.FuncDecl) {
 	}
 
 	doc := p.leadComment
+	var decoratorDoc *ast.CommentGroup
+	if doc != nil {
+		docList := make([]*ast.Comment, len(doc.List))
+		n := copy(docList, doc.List)
+		if n > 0 {
+			decoratorDoc = &ast.CommentGroup{
+				List: docList,
+			}
+		}
+	}
 	pos := p.expect(token.FUNC)
 
 	var recv *ast.FieldList
@@ -2781,7 +2791,10 @@ func (p *parser) parseFuncDecl() (*DeclDecorators, *ast.FuncDecl) {
 	results := p.parseResult()
 
 	//ogodecorators
-	decors := p.ParseFnDecorators(ident, params, results)
+	var decors *DeclDecorators
+	if decoratorDoc != nil {
+		decors = p.ParseFnDecorators(decoratorDoc, ident, params, results)
+	}
 
 	var body *ast.BlockStmt
 	switch p.tok {

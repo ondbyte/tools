@@ -11,6 +11,7 @@ require (
 require golang.org/x/sync v0.6.0
 
 require (
+	github.com/gomarkdown/markdown v0.0.0-20231222211730-1d6d20845b47
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/telemetry v0.0.0-20240228155512-f48c80bd79b2
 )

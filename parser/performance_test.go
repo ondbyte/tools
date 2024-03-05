@@ -10,7 +10,9 @@ import (
 	"testing"
 )
 
-var src = readFile("../printer/nodes.go")
+// TODO(ondbyte) fix this by pointing back to the actual file like, for now using something qaccessible
+//var src = readFile("../printer/nodes.go")
+var src = readFile("./parser.go")
 
 func readFile(filename string) []byte {
 	data, err := os.ReadFile(filename)
