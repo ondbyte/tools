@@ -127,7 +127,7 @@ func ParseParamDecorator(cmt *ast.Comment, paramName string, paramType ast.Expr)
 		return nil, nil
 	}
 	// path decor
-	path, err := VerifyPathParamDecor(ident.Name, xx.Args, paramName, paramType)
+	path, err := VerifyPathParamDecor(ident, xx.Args, paramName, paramType)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func ParseFnDecorator(cmt *ast.Comment) (Decorator, *DecorationErr) {
 		return nil, nil
 	}
 	// handler decor
-	path, err := VerifyHandlerDecor(ident.Name, xx.Args)
+	path, err := VerifyHandlerDecor(ident, xx.Args)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func ParseFnDecorator(cmt *ast.Comment) (Decorator, *DecorationErr) {
 		return path, nil
 	}
 	// description decor
-	descrDecor, err := VerifyDescrDecor(ident.Name, xx.Args)
+	descrDecor, err := VerifyDescrDecor(ident, xx.Args)
 	if err != nil {
 		return nil, err
 	}
@@ -173,10 +173,20 @@ type DeclDecorators struct {
 	decorators map[decoratorName]Decorator
 	params     map[string]*FieldDecorators
 }
+type FieldType string
+
+func (ft FieldType) Star() bool {
+	return strings.HasPrefix(string(ft), "*")
+}
+
+func (ft FieldType) WithoutStar() string {
+	r, _ := strings.CutPrefix(string(ft), "*")
+	return r
+}
 
 type FieldDecorators struct {
 	fieldName  string
-	fieldType  string
+	fieldType  FieldType
 	decorators map[decoratorName]Decorator
 }
 
@@ -251,7 +261,7 @@ func (p *parser) ParseFnDecorators(fnComments *ast.CommentGroup, fnName *ast.Ide
 				}
 				fd.params[param.Names[0].Name] = &FieldDecorators{
 					fieldName:  param.Names[0].Name,
-					fieldType:  paramType,
+					fieldType:  FieldType(paramType),
 					decorators: fnDecorators,
 				}
 			}
@@ -260,42 +270,52 @@ func (p *parser) ParseFnDecorators(fnComments *ast.CommentGroup, fnName *ast.Ide
 	return
 }
 
-func GenCode(dd *DeclDecorators) (string, *DecorationErr) {
+// generates a handler func to handle the routes using decorator details
+func GenFuncSrc(dd *DeclDecorators) (string, *DecorationErr) {
 	h, ok := dd.decorators[HANDLER].(*HandlerDecor)
 	if !ok {
 		fmt.Println("no handler decor, no code will be generated")
-		return ""
+		return "", nil
 	}
 	src := strings.Builder{}
-	src.WriteString(`server := http.Server{}
-	mux:=http.NewServeMux()
-	mux.HandleFunc(path,func(w http.ResponseWriter, r *http.Request) {`)
+	src.WriteString(fmt.Sprintf(`
+	
+	mux.HandleFunc("%v %v",func(w http.ResponseWriter, r *http.Request) {`, h.HttpMethod, h.Path))
 	src.WriteRune('\n')
 
-	for p := range h.PathParams {
-		src.WriteString(fmt.Sprintf(`%v = r.PathValue("%v")`, p, p))
-		src.WriteRune('\n')
-	}
-	src.WriteString(dd.declName)
-	src.WriteRune('(')
+	handlerCall := &strings.Builder{}
+	handlerCall.WriteString(dd.declName)
+	handlerCall.WriteRune('(')
 	for _, param := range dd.params {
 		for _, decor := range param.decorators {
 			switch fieldDecor := decor.(type) {
 			case *PathParamDecor:
-				pathParamName, ok := h.PathParams[fieldDecor.PathParamName]
-				if !ok {
+				hasPathParam := h.PathParams[fieldDecor.PathParamName]
+				if !hasPathParam {
 					return "", &DecorationErr{
 						pos: fieldDecor.Pos,
 						msg: "this path parameter is not defined in the handler decorator",
 					}
 				}
+				src.WriteString(fmt.Sprintf(`%v := r.PathValue("%v")`, fieldDecor.PathParamName, fieldDecor.PathParamName))
+				src.WriteRune('\n')
+				src.WriteString(fmt.Sprintf("%v := new(%v)", param.fieldName, param.fieldType.WithoutStar()))
+				src.WriteRune('\n')
+				src.WriteString(fmt.Sprintf(`err = json.Unmarshal([]byte(%v),%v)`, fieldDecor.PathParamName, param.fieldName))
+				src.WriteRune('\n')
+				src.WriteString(fmt.Sprintf(`if err!=nil{panic(err)}`))
+				src.WriteRune('\n')
 			}
 		}
-		src.WriteString(param.fieldName)
-		src.WriteRune(',')
+		if !param.fieldType.Star() {
+			handlerCall.WriteRune('*')
+		}
+		handlerCall.WriteString(param.fieldName)
+		handlerCall.WriteRune(',')
 	}
-	src.WriteRune(')')
+	handlerCall.WriteRune(')')
+	src.WriteString(handlerCall.String())
 	src.WriteRune('}')
 	src.WriteRune(')')
-	return src.String()
+	return src.String(), nil
 }

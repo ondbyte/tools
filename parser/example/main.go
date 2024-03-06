@@ -1,9 +1,10 @@
 package example
 
-// handler("GET","/yadu")
+// handler("GET","/users/{user_id}")
 func HandleSomeEndpoints(
-	// path(""")
-	yadu string,
+	// path()
+	userId string,
+	orderId string,
 ) {
 
 }

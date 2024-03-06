@@ -8,7 +8,7 @@ import (
 
 func TestVerifyDecorArgs(t *testing.T) {
 	type args struct {
-		decorName         string
+		decorName         *ast.Ident
 		requiredName      string
 		args              []ast.Expr
 		noOfRequiredParam int
@@ -22,7 +22,7 @@ func TestVerifyDecorArgs(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				decorName:    "handler",
+				decorName:    ast.NewIdent("handler"),
 				requiredName: "handler",
 				args: []ast.Expr{
 					&ast.BasicLit{Value: "/users/{id}"},
@@ -35,7 +35,7 @@ func TestVerifyDecorArgs(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				decorName:    "hander",
+				decorName:    ast.NewIdent("hander"),
 				requiredName: "handler",
 				args: []ast.Expr{
 					&ast.BasicLit{Value: "/users/{id}"},
@@ -48,7 +48,7 @@ func TestVerifyDecorArgs(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				decorName:    "path",
+				decorName:    ast.NewIdent("path"),
 				requiredName: "path",
 				args: []ast.Expr{
 					&ast.BasicLit{Value: "1"},
@@ -62,7 +62,7 @@ func TestVerifyDecorArgs(t *testing.T) {
 		{
 			name: "",
 			args: args{
-				decorName:    "path",
+				decorName:    ast.NewIdent("path"),
 				requiredName: "path",
 				args: []ast.Expr{
 					&ast.BasicLit{Value: "1"},

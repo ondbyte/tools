@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "/home/onbyte/code/tools/gopls/main.go",
+            "program": "/home/yadhunandan/code_2/tools/gopls/main.go",
             "args": [
                 "-port","8002"
             ]

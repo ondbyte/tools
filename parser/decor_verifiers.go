@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func VerifyPathParamDecor(decorName string, args []ast.Expr, paramName string, paramType ast.Expr) (*PathParamDecor, *DecorationErr) {
+func VerifyPathParamDecor(decorName *ast.Ident, args []ast.Expr, paramName string, paramType ast.Expr) (*PathParamDecor, *DecorationErr) {
 	paramValues, err := VerifyDecorArgs(decorName, string(PATH), args, 1)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func VerifyPathParamDecor(decorName string, args []ast.Expr, paramName string, p
 
 var allowedHttpMethods = []string{"GET", "POST", "DELETE", "PATCH", "OPTIONS"}
 
-func VerifyHandlerDecor(decorName string, args []ast.Expr) (*HandlerDecor, *DecorationErr) {
+func VerifyHandlerDecor(decorName *ast.Ident, args []ast.Expr) (*HandlerDecor, *DecorationErr) {
 	paramValues, err := VerifyDecorArgs(decorName, string(HANDLER), args, 2)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func VerifyHandlerDecor(decorName string, args []ast.Expr) (*HandlerDecor, *Deco
 	}, nil
 }
 
-func VerifyDescrDecor(decorName string, args []ast.Expr) (*DescriptionDecor, *DecorationErr) {
+func VerifyDescrDecor(decorName *ast.Ident, args []ast.Expr) (*DescriptionDecor, *DecorationErr) {
 	paramValues, err := VerifyDecorArgs(decorName, string(DESCR), args, 1)
 	if err != nil {
 		return nil, err
@@ -69,11 +69,17 @@ func VerifyDescrDecor(decorName string, args []ast.Expr) (*DescriptionDecor, *De
 
 // verifies a decor name and arguments it must take
 // returns the argument values or err
-func VerifyDecorArgs(decorName, requiredName string, args []ast.Expr, noOfRequiredParam int) (r []string, d *DecorationErr) {
-	if decorName != requiredName {
+func VerifyDecorArgs(decorName *ast.Ident, requiredName string, args []ast.Expr, noOfRequiredParam int) (r []string, d *DecorationErr) {
+	if decorName.Name != requiredName {
 		return nil, nil
 	}
 	if len(args) != noOfRequiredParam {
+		if len(args) == 0 {
+			return nil, &DecorationErr{
+				pos: decorName.End() + 1,
+				msg: fmt.Sprintf("%v requires %v arguments but you have provided %v", requiredName, noOfRequiredParam, len(args)),
+			}
+		}
 		return nil, &DecorationErr{
 			pos: args[len(args)-1].End(),
 			msg: fmt.Sprintf("%v requires %v arguments but you have provided %v", requiredName, noOfRequiredParam, len(args)),

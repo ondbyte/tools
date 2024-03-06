@@ -60,7 +60,10 @@ func TestGenCode(t *testing.T) {
 			/* if got := GenCode(tt.args.dd); got != tt.want {
 				t.Errorf("GenCode() = %v, want %v", got, tt.want)
 			} */
-			got := GenCode(tt.args.dd)
+			got, dErr := GenFuncSrc(tt.args.dd)
+			if dErr != nil {
+				panic(dErr)
+			}
 			os.WriteFile("./gen.go", []byte(fmt.Sprintf("package parser\nfunc main(){%v}", got)), 0644)
 			gotSrc, err := format.Source([]byte(got))
 			fmt.Println(string(gotSrc), err)
