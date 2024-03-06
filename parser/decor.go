@@ -45,8 +45,7 @@ var endpointRegex = regexp.MustCompile(string(HANDLER) + `\("([^"]+)"\)`)
 var endpointContentRegex = regexp.MustCompile(`{([^}]*)}`)
 
 type PathParamDecor struct {
-	ParamName     string
-	ParamType     ast.Expr
+	Pos           token.Pos
 	PathParamName string
 }
 
@@ -58,27 +57,28 @@ func (p *PathParamDecor) decoratorName() decoratorName {
 var pathRegex = regexp.MustCompile(`path\("([^"]+)"\)`)
 
 type Query struct {
-	Raw    string
+	Pos    token.Pos
 	Params map[string]string
 }
 
 var queryRegex = regexp.MustCompile(`query\("([^"]+)"\)`)
 
 type Header struct {
-	Raw    string
+	Pos    token.Pos
 	Params map[string]string
 }
 
 var headerRegex = regexp.MustCompile(`header\("([^"]+)"\)`)
 
 type Body struct {
-	Raw    string
+	Pos    token.Pos
 	Params map[string]string
 }
 
 var bodyRegex = regexp.MustCompile(`body\("([^"]+)"\)`)
 
 type DescriptionDecor struct {
+	Pos  token.Pos
 	Data string
 }
 
@@ -176,7 +176,7 @@ type DeclDecorators struct {
 
 type FieldDecorators struct {
 	fieldName  string
-	fieldType  ast.Expr
+	fieldType  string
 	decorators map[decoratorName]Decorator
 }
 
@@ -245,13 +245,57 @@ func (p *parser) ParseFnDecorators(fnComments *ast.CommentGroup, fnName *ast.Ide
 					p.error(param.Pos(), fmt.Sprintf("this function has a %v decorator, so this param needs one of these decorators %v", HANDLER, []decoratorName{PATH}))
 					continue
 				}
+				paramType, err := StringifiedType(param.Type)
+				if err != nil {
+					p.error(param.Pos(), err.Error())
+				}
 				fd.params[param.Names[0].Name] = &FieldDecorators{
 					fieldName:  param.Names[0].Name,
-					fieldType:  param.Type,
+					fieldType:  paramType,
 					decorators: fnDecorators,
 				}
 			}
 		}
 	}
 	return
+}
+
+func GenCode(dd *DeclDecorators) (string, *DecorationErr) {
+	h, ok := dd.decorators[HANDLER].(*HandlerDecor)
+	if !ok {
+		fmt.Println("no handler decor, no code will be generated")
+		return ""
+	}
+	src := strings.Builder{}
+	src.WriteString(`server := http.Server{}
+	mux:=http.NewServeMux()
+	mux.HandleFunc(path,func(w http.ResponseWriter, r *http.Request) {`)
+	src.WriteRune('\n')
+
+	for p := range h.PathParams {
+		src.WriteString(fmt.Sprintf(`%v = r.PathValue("%v")`, p, p))
+		src.WriteRune('\n')
+	}
+	src.WriteString(dd.declName)
+	src.WriteRune('(')
+	for _, param := range dd.params {
+		for _, decor := range param.decorators {
+			switch fieldDecor := decor.(type) {
+			case *PathParamDecor:
+				pathParamName, ok := h.PathParams[fieldDecor.PathParamName]
+				if !ok {
+					return "", &DecorationErr{
+						pos: fieldDecor.Pos,
+						msg: "this path parameter is not defined in the handler decorator",
+					}
+				}
+			}
+		}
+		src.WriteString(param.fieldName)
+		src.WriteRune(',')
+	}
+	src.WriteRune(')')
+	src.WriteRune('}')
+	src.WriteRune(')')
+	return src.String()
 }

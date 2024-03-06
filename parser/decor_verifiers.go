@@ -16,8 +16,6 @@ func VerifyPathParamDecor(decorName string, args []ast.Expr, paramName string, p
 	}
 	return &PathParamDecor{
 		PathParamName: paramValues[0],
-		ParamName:     paramName,
-		ParamType:     paramType,
 	}, nil
 }
 
