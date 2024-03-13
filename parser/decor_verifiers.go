@@ -3,11 +3,13 @@ package parser
 import (
 	"fmt"
 	"go/ast"
-	"strconv"
+	"go/token"
 )
 
-func VerifyPathParamDecor(decorName *ast.Ident, args []ast.Expr, paramName string, paramType ast.Expr) (*PathParamDecor, *DecorationErr) {
-	paramValues, err := VerifyDecorArgs(decorName, string(PATH), args, 1)
+const PATH decoratorName = "path"
+
+func (dc *DecorComment) VerifyPathParamDecor() (*PathParamDecor, *DecorationErr) {
+	paramValues, err := VerifyDecorArgs(dc.DecorName, string(PATH), dc.Args, token.STRING)
 	if err != nil {
 		return nil, err
 	}
@@ -21,8 +23,10 @@ func VerifyPathParamDecor(decorName *ast.Ident, args []ast.Expr, paramName strin
 
 var allowedHttpMethods = []string{"GET", "POST", "DELETE", "PATCH", "OPTIONS"}
 
-func VerifyHandlerDecor(decorName *ast.Ident, args []ast.Expr) (*HandlerDecor, *DecorationErr) {
-	paramValues, err := VerifyDecorArgs(decorName, string(HANDLER), args, 2)
+const HANDLER decoratorName = "handler"
+
+func (dc *DecorComment) VerifyHandlerDecor() (*HandlerDecor, *DecorationErr) {
+	paramValues, err := VerifyDecorArgs(dc.DecorName, string(HANDLER), dc.Args, token.STRING, token.STRING)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +42,7 @@ func VerifyHandlerDecor(decorName *ast.Ident, args []ast.Expr) (*HandlerDecor, *
 	}
 	if _method == "" {
 		return nil, &DecorationErr{
-			pos: args[0].End(),
+			pos: dc.Args[0].End(),
 			msg: fmt.Sprintf("first argument should be string http method, allowed values are %v", allowedHttpMethods),
 		}
 	}
@@ -54,8 +58,10 @@ func VerifyHandlerDecor(decorName *ast.Ident, args []ast.Expr) (*HandlerDecor, *
 	}, nil
 }
 
-func VerifyDescrDecor(decorName *ast.Ident, args []ast.Expr) (*DescriptionDecor, *DecorationErr) {
-	paramValues, err := VerifyDecorArgs(decorName, string(DESCR), args, 1)
+const DESCR decoratorName = "description"
+
+func (dc *DecorComment) VerifyDescrDecor() (*DescriptionDecor, *DecorationErr) {
+	paramValues, err := VerifyDecorArgs(dc.DecorName, string(DESCR), dc.Args, 1)
 	if err != nil {
 		return nil, err
 	}
@@ -69,40 +75,32 @@ func VerifyDescrDecor(decorName *ast.Ident, args []ast.Expr) (*DescriptionDecor,
 
 // verifies a decor name and arguments it must take
 // returns the argument values or err
-func VerifyDecorArgs(decorName *ast.Ident, requiredName string, args []ast.Expr, noOfRequiredParam int) (r []string, d *DecorationErr) {
-	if decorName.Name != requiredName {
+func VerifyDecorArgs(decorName *ast.Ident, reqDecorName string, args []*ast.BasicLit, requiredArgs ...token.Token) (r []string, d *DecorationErr) {
+	if decorName.Name != reqDecorName {
 		return nil, nil
 	}
-	if len(args) != noOfRequiredParam {
+	if len(args) != len(requiredArgs) {
 		if len(args) == 0 {
 			return nil, &DecorationErr{
 				pos: decorName.End() + 1,
-				msg: fmt.Sprintf("%v requires %v arguments but you have provided %v", requiredName, noOfRequiredParam, len(args)),
+				msg: fmt.Sprintf("%v requires %v arguments but you have provided %v", reqDecorName, len(requiredArgs), len(args)),
 			}
 		}
 		return nil, &DecorationErr{
 			pos: args[len(args)-1].End(),
-			msg: fmt.Sprintf("%v requires %v arguments but you have provided %v", requiredName, noOfRequiredParam, len(args)),
+			msg: fmt.Sprintf("%v requires %v arguments but you have provided %v", reqDecorName, len(requiredArgs), len(args)),
 		}
 	}
 	r = []string{}
-	for _, a := range args {
-		lit, ok := a.(*ast.BasicLit)
-		var litVal string
-		if !ok {
+	for i, a := range args {
+		b := requiredArgs[i]
+		if b != a.Kind {
 			return nil, &DecorationErr{
 				pos: a.Pos(),
-				msg: fmt.Sprintf("only string param values are supported for now"),
+				msg: fmt.Sprintf("expected param %v to be a %v", i, b.String()),
 			}
 		}
-		litVal, err := strconv.Unquote(lit.Value)
-		if err != nil {
-			return nil, &DecorationErr{
-				pos: a.Pos(),
-				msg: fmt.Sprintf("only string param values are supported for now"),
-			}
-		}
-		r = append(r, litVal)
+		r = append(r, a.Value)
 	}
 	return
 }

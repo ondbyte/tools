@@ -11,12 +11,6 @@ import (
 
 type decoratorName string
 
-var (
-	PATH    decoratorName = "path"
-	DESCR   decoratorName = "description"
-	HANDLER decoratorName = "handler"
-)
-
 type Decorator interface {
 	decoratorName() decoratorName
 }
@@ -110,10 +104,6 @@ type DecorationErr struct {
 	msg string
 }
 
-func (d *DecorationErr) Add(p token.Pos) token.Pos {
-	return d.pos + p
-}
-
 func ParseParamDecorator(cmt *ast.Comment, paramName string, paramType ast.Expr) (Decorator, *DecorationErr) {
 	text := cmt.Text
 	text = strings.Trim(text, "/")
@@ -198,46 +188,57 @@ func CodeLines(lines ...string) (c string) {
 	c += ""
 	return
 }
-func (p *parser) ParseFnDecorators(fnComments *ast.CommentGroup, fnName *ast.Ident, fnParams, fnResults *ast.FieldList) (fd *DeclDecorators) {
-	fnDecorators := map[decoratorName]Decorator{}
-	var hasHandlerDecorator = false
-	if fnComments != nil && len(fnComments.List) > 0 {
-		for _, cmt := range fnComments.List {
-			decor, err := ParseFnDecorator(cmt)
-			if err != nil {
-				p.error(err.Add(cmt.Slash), err.msg)
-				continue
-			}
-			if !hasHandlerDecorator {
-				_, hasHandlerDecorator = decor.(*HandlerDecor)
-			}
-			if decor != nil {
-				fnDecorators[decor.decoratorName()] = decor
-			}
-		}
-		if !hasHandlerDecorator {
-			// dont bother to parse comments for this fn, as the required 'handler' decor is not found
-			return nil
-		}
 
-		fd = &DeclDecorators{
-			declName:   fnName.Name,
-			decorators: fnDecorators,
-			params:     map[string]*FieldDecorators{},
+func (p *parser) ParseFnDecorators(fnComments *ast.CommentGroup, fnName *ast.Ident, fnParams, fnResults *ast.FieldList) (fd *DeclDecorators) {
+	if fnComments == nil || len(fnComments.List) == 0 {
+		return
+	}
+	fnDecorators := map[decoratorName]Decorator{}
+	handlerCommentIndex := -1
+	for i, v := range fnComments.List {
+		// first fn decorator should be a handler
+		dc, err := NewDecorComment(v)
+		if err != nil {
+			p.error(err.pos, err.msg)
+			return
+		}
+		hd, err := dc.VerifyHandlerDecor()
+		if err != nil {
+			p.error(err.pos, err.msg)
+		}
+		if hd == nil {
+			// not a handler
+			continue //until we find one
+		}
+		handlerCommentIndex = i
+	}
+	if handlerCommentIndex == -1 {
+		return
+	}
+
+	fd = &DeclDecorators{
+		declName:   fnName.Name,
+		decorators: fnDecorators,
+		params:     map[string]*FieldDecorators{},
+	}
+
+	if fnComments != nil && len(fnComments.List) > 0 {
+		for _, v := range fnComments.List[handlerCommentIndex:] {
+			dc, err := NewDecorComment(v)
+			if err != nil {
+				p.error(err.pos, err.msg)
+				return
+			}
+			var dd Decorator
+			dd, err = dc.VerifyDescrDecor()
+			if err != nil {
+				p.error(err.pos, err.msg)
+				return
+			}
+			fd.decorators[dd.decoratorName()] = dd
 		}
 		for _, param := range fnParams.List {
 			if param.Comment == nil || len(param.Comment.List) == 0 {
-				/*
-					TODO(ondbyte) implement more descriptive errors with code examples personalized to match the fn we are parsing, like
-					example := CodeLines(
-						fmt.Sprintf(`// handler("%v")`,param.Names[0]),
-						fmt.Sprintf(`func %v(`, fnName.Name),
-						fmt.Sprintf(`	// path("%v")`,param.Names[0]),
-						fmt.Sprintf(`	%v string,`,param.Names[0],),
-						`){`,
-						``,
-						`}`,
-					) */
 				p.error(param.Pos(), fmt.Sprintf("this function has a %v decorator, so this param needs one of these decorators %v", HANDLER, []decoratorName{PATH}))
 			} else {
 				paramDecorators := map[string]Decorator{}

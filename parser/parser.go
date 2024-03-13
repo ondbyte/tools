@@ -2793,7 +2793,7 @@ func (p *parser) parseFuncDecl() (*DeclDecorators, *ast.FuncDecl) {
 	//ogodecorators
 	var decors *DeclDecorators
 	if decoratorDoc != nil {
-		decors = p.ParseFnDecorators(decoratorDoc, ident, params, results)
+		//decors = p.ParseFnDecorators(decoratorDoc, ident, params, results)
 	}
 
 	var body *ast.BlockStmt
