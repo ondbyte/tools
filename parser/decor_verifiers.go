@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"strconv"
 )
 
 const PATH decoratorName = "path"
@@ -49,7 +50,7 @@ func (dc *DecorComment) VerifyHandlerDecor() (*HandlerDecor, *DecorationErr) {
 	PathParams := map[string]bool{}
 	allMatches := endpointContentRegex.FindAllStringSubmatch(paramValues[1], -1)
 	for _, match := range allMatches {
-		paramValues = append(paramValues, match[1])
+		PathParams[match[1]] = true
 	}
 	return &HandlerDecor{
 		HttpMethod: _method,
@@ -61,7 +62,7 @@ func (dc *DecorComment) VerifyHandlerDecor() (*HandlerDecor, *DecorationErr) {
 const DESCR decoratorName = "description"
 
 func (dc *DecorComment) VerifyDescrDecor() (*DescriptionDecor, *DecorationErr) {
-	paramValues, err := VerifyDecorArgs(dc.DecorName, string(DESCR), dc.Args, 1)
+	paramValues, err := VerifyDecorArgs(dc.DecorName, string(DESCR), dc.Args, token.STRING)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +101,14 @@ func VerifyDecorArgs(decorName *ast.Ident, reqDecorName string, args []*ast.Basi
 				msg: fmt.Sprintf("expected param %v to be a %v", i, b.String()),
 			}
 		}
-		r = append(r, a.Value)
+		us, err := strconv.Unquote(a.Value)
+		if err != nil {
+			return nil, &DecorationErr{
+				pos: a.Pos(),
+				msg: err.Error(),
+			}
+		}
+		r = append(r, us)
 	}
 	return
 }

@@ -122,7 +122,7 @@ func ParseFile(fset *token.FileSet, filename string, src any, mode Mode) (df *De
 
 	// parse source
 	p.init(fset, filename, text, mode)
-	_, f = p.parseFile()
+	df, f = p.parseFile()
 
 	return
 }
